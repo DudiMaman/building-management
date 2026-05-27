@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { SupabaseJwtGuard, type AuthenticatedRequest } from '../auth/supabase-jwt.guard';
 import { CreatePersonSchema } from '@bm/shared';
@@ -8,6 +20,25 @@ import { ZodPipe } from '../../common/zod.pipe';
 @UseGuards(SupabaseJwtGuard)
 export class PeopleController {
   constructor(private readonly people: PeopleService) {}
+
+  @Put('me/push-token')
+  registerPushToken(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: { token: string; platform?: 'ios' | 'android' | 'web' },
+  ) {
+    if (req.claims.role !== 'resident' || !req.claims.person_id) {
+      throw new ForbiddenException('Resident-only endpoint');
+    }
+    return this.people.updatePushToken(req.claims.tenant_id, req.claims.person_id, body.token);
+  }
+
+  @Delete('me/push-token')
+  unregisterPushToken(@Req() req: AuthenticatedRequest) {
+    if (req.claims.role !== 'resident' || !req.claims.person_id) {
+      throw new ForbiddenException('Resident-only endpoint');
+    }
+    return this.people.updatePushToken(req.claims.tenant_id, req.claims.person_id, null);
+  }
 
   @Post()
   create(@Req() req: AuthenticatedRequest, @Body(new ZodPipe(CreatePersonSchema)) body: any) {

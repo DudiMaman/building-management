@@ -174,7 +174,13 @@ These are items intentionally stubbed or simplified for the autonomous build:
   the iframe flow use `apps/mobile-resident/app/lib/api.ts`. Remaining
   admin screens (apartments, people, tasks, tickets, etc.) and the
   resident home/charges screens still use static data.
-- **Push notifications setup**: Expo Push token registration on mobile not yet wired (need `expo-notifications`).
+- ✅ **Push notifications setup (resident)**: mobile-resident now registers
+  an Expo push token on launch via `app/lib/push.ts`. Requests permission
+  if needed, sets up an Android channel, reads the EAS project id from
+  app config or `EXPO_PUBLIC_EAS_PROJECT_ID`, and persists the token via
+  `PUT /v1/people/me/push-token` (DELETE on sign-out). Notification tap
+  handler is registered in `_layout.tsx`; per-category deep linking is a
+  follow-up. Mobile-maintenance still needs the same wiring.
 - **Background job runner**: `BullMQ` queues defined in `app.module.ts` but worker process not yet bootstrapped. Add `apps/api/src/main.worker.ts`.
 - **Subscribe to PR webhooks**: ITA clearance, Tranzila notify, WhatsApp messages — webhook controllers exist but need production HMAC secrets.
 

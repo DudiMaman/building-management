@@ -46,6 +46,19 @@ export class PeopleService {
     });
   }
 
+  async updatePushToken(tenantId: string, personId: string, token: string | null) {
+    return this.db.withTenantContext(
+      { tenant_id: tenantId, role: 'resident', person_id: personId },
+      async (c) => {
+        await c.query(
+          `update people set push_token = $1, updated_at = now() where id = $2`,
+          [token, personId],
+        );
+        return { ok: true };
+      },
+    );
+  }
+
   async findByPhone(tenantId: string, phone: string): Promise<Person | null> {
     const e164 = toE164(phone);
     if (!e164) return null;
