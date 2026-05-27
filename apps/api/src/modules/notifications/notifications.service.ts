@@ -7,8 +7,8 @@ import { DbService } from '../../db/db.service';
 import { ExpoPushSender } from './senders/expo-push.sender';
 import { ResendEmailSender } from './senders/resend-email.sender';
 import { InforuSmsSender } from './senders/inforu-sms.sender';
-import { findTemplate, renderTemplate } from '@bm/shared/templates';
-import { NOTIFICATION_DND_HOURS } from '@bm/shared/constants';
+import { findTemplate, renderTemplate } from '@bm/shared';
+import { NOTIFICATION_DND_HOURS } from '@bm/shared';
 import type { NotificationChannel } from '@bm/db';
 
 export interface SendInput {

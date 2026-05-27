@@ -32,7 +32,7 @@ export interface ClassifyResult {
 
 export async function classifyTicket(
   text: string,
-  photoUrls: string[] = [],
+  _photoUrls: string[] = [],
 ): Promise<ClassifyResult> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return heuristicClassify(text);
@@ -47,16 +47,7 @@ export async function classifyTicket(
       messages: [
         {
           role: 'user',
-          content: [
-            { type: 'text', text },
-            ...photoUrls.slice(0, 4).map(
-              (url) =>
-                ({
-                  type: 'image',
-                  source: { type: 'url', url },
-                }) as const,
-            ),
-          ],
+          content: [{ type: 'text', text }],
         },
       ],
     });

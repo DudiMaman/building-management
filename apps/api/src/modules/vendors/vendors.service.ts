@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
-import { buildMasavFile, type MasavPayment } from '@bm/shared/masav';
+import { buildMasavFile, type MasavPayment } from '@bm/shared';
 
 @Injectable()
 export class VendorsService {

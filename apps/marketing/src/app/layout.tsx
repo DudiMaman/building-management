@@ -1,8 +1,5 @@
 import './globals.css';
-import { Heebo } from 'next/font/google';
 import type { Metadata } from 'next';
-
-const heebo = Heebo({ subsets: ['hebrew', 'latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'ניהול מבנים - פלטפורמת CRM מודרנית לחברות ניהול',
@@ -18,7 +15,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl">
-      <body className={heebo.className}>{children}</body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }

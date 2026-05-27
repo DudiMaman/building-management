@@ -14,7 +14,7 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { ITA_E_INVOICE_THRESHOLD_ILS } from '@bm/shared/constants';
+import { ITA_E_INVOICE_THRESHOLD_ILS } from '@bm/shared';
 
 export interface ItaClearanceInput {
   tenant_vat_id: string;

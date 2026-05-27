@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ItaClearanceAdapter, type ItaClearanceInput, type ItaClearanceResult } from './ita-clearance.adapter';
-import { ITA_E_INVOICE_THRESHOLD_ILS } from '@bm/shared/constants';
+import { ITA_E_INVOICE_THRESHOLD_ILS } from '@bm/shared';
 
 @Injectable()
 export class ItaClearanceMockAdapter extends ItaClearanceAdapter {

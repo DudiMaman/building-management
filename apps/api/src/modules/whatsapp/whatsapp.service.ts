@@ -5,7 +5,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { DbService } from '../../db/db.service';
-import { findTemplate } from '@bm/shared/templates';
+import { findTemplate } from '@bm/shared';
 
 @Injectable()
 export class WhatsAppService {

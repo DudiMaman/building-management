@@ -1,0 +1,119 @@
+/**
+ * ReportsService — financial + operational aggregations.
+ * See SPEC §22.
+ *
+ * All queries run within the tenant's RLS context.
+ */
+import { Injectable } from '@nestjs/common';
+import { DbService } from '../../db/db.service';
+
+@Injectable()
+export class ReportsService {
+  constructor(private readonly db: DbService) {}
+
+  async collectionRate(tenantId: string, buildingId?: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const params: unknown[] = [];
+      let where = '';
+      if (buildingId) {
+        params.push(buildingId);
+        where = `where building_id = $${params.length}`;
+      }
+      const { rows } = await c.query(
+        `select
+           coalesce(sum(amount), 0)::text as billed,
+           coalesce(sum(paid_amount), 0)::text as paid,
+           count(*) as charge_count,
+           count(*) filter (where status = 'paid') as paid_count,
+           count(*) filter (where status = 'overdue') as overdue_count
+         from charges
+         ${where}`,
+        params,
+      );
+      const row = rows[0] as { billed: string; paid: string; charge_count: string; paid_count: string; overdue_count: string };
+      const billed = Number(row?.billed ?? 0);
+      const paid = Number(row?.paid ?? 0);
+      const rate = billed > 0 ? paid / billed : 0;
+      return {
+        billed: row?.billed ?? '0',
+        paid: row?.paid ?? '0',
+        rate,
+        charge_count: Number(row?.charge_count ?? 0),
+        paid_count: Number(row?.paid_count ?? 0),
+        overdue_count: Number(row?.overdue_count ?? 0),
+      };
+    });
+  }
+
+  async arAging(tenantId: string, buildingId?: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const params: unknown[] = [];
+      let where = `where status in ('pending','partial','overdue')`;
+      if (buildingId) {
+        params.push(buildingId);
+        where += ` and building_id = $${params.length}`;
+      }
+      const { rows } = await c.query(
+        `select
+           sum(case when current_date - due_date <= 30 then amount - paid_amount else 0 end)::text as bucket_0_30,
+           sum(case when current_date - due_date between 31 and 60 then amount - paid_amount else 0 end)::text as bucket_31_60,
+           sum(case when current_date - due_date between 61 and 90 then amount - paid_amount else 0 end)::text as bucket_61_90,
+           sum(case when current_date - due_date > 90 then amount - paid_amount else 0 end)::text as bucket_90_plus
+         from charges
+         ${where}`,
+        params,
+      );
+      return (
+        rows[0] ?? {
+          bucket_0_30: '0',
+          bucket_31_60: '0',
+          bucket_61_90: '0',
+          bucket_90_plus: '0',
+        }
+      );
+    });
+  }
+
+  async openTickets(tenantId: string, buildingId?: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const params: unknown[] = [];
+      let where = `where status not in ('resolved','closed')`;
+      if (buildingId) {
+        params.push(buildingId);
+        where += ` and building_id = $${params.length}`;
+      }
+      const { rows } = await c.query(
+        `select
+           count(*) as total,
+           count(*) filter (where priority = 'urgent') as urgent,
+           count(*) filter (where priority = 'high') as high,
+           count(*) filter (where sla_due_at < now()) as sla_breached
+         from service_tickets
+         ${where}`,
+        params,
+      );
+      return rows[0] ?? { total: 0, urgent: 0, high: 0, sla_breached: 0 };
+    });
+  }
+
+  async perPersonAr(tenantId: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query(
+        `select
+           p.id as person_id,
+           p.full_name,
+           coalesce(sum(c.amount - c.paid_amount), 0)::text as outstanding,
+           count(c.id) filter (where c.status in ('pending','partial','overdue')) as open_charges
+         from people p
+         left join charges c
+           on c.billed_to_person_id = p.id
+          and c.status in ('pending','partial','overdue')
+         group by p.id, p.full_name
+         having coalesce(sum(c.amount - c.paid_amount), 0) > 0
+         order by outstanding::numeric desc
+         limit 200`,
+      );
+      return rows;
+    });
+  }
+}

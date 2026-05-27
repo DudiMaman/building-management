@@ -13,7 +13,7 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
-import { DUNNING_STAGES } from '@bm/shared/constants';
+import { DUNNING_STAGES } from '@bm/shared';
 
 @Injectable()
 export class DunningService {

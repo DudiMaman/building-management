@@ -85,36 +85,4 @@ export async function setRlsContext(
   }
 }
 
-export type {
-  Tenant,
-  Building,
-  Apartment,
-  Person,
-  ManagementUser,
-  MaintenanceWorker,
-  ApartmentAssignment,
-  RentalContract,
-  ChargeSchedule,
-  Charge,
-  Payment,
-  PaymentMethod,
-  Invoice,
-  InvoiceSeries,
-  Check,
-  CheckBatch,
-  BouncedCheck,
-  Document,
-  DocumentVersion,
-  ServiceTicket,
-  Task,
-  Vendor,
-  BulletinPost,
-  Poll,
-  Vote,
-  Conversation,
-  Message,
-  Notification,
-  AccessGate,
-  AddonProduct,
-  AddonOrder,
-} from './types';
+export * from './types';

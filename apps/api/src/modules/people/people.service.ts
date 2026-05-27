@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
-import { toE164 } from '@bm/shared/phone';
+import { toE164 } from '@bm/shared';
 import type { CreatePerson } from '@bm/shared';
 import type { Person } from '@bm/db';
 

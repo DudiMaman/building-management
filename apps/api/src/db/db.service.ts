@@ -1,6 +1,6 @@
 import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
 import { getPool, setRlsContext, withTransaction } from '@bm/db';
-import type { PoolClient } from 'pg';
+import type { PoolClient, QueryResultRow } from 'pg';
 
 @Injectable()
 export class DbService implements OnModuleInit, OnModuleDestroy {
@@ -39,7 +39,7 @@ export class DbService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** Read-only convenience: pool query (no RLS — admin use only). */
-  async query<T = unknown>(sql: string, params?: unknown[]) {
+  async query<T extends QueryResultRow = QueryResultRow>(sql: string, params?: unknown[]) {
     return getPool().query<T>(sql, params as never);
   }
 }
