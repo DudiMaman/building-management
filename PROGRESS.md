@@ -240,8 +240,22 @@ These are items intentionally stubbed or simplified for the autonomous build:
 - **E2E tests**: Playwright config not set up.
 - **i18n on admin**: hardcoded Hebrew strings; should load from `@bm/shared/i18n`.
 - **AI bot RAG**: KB chunks table exists but ingestion + retrieval not wired.
-- **Polls signature verification**: signature_blob stored but verification logic stubbed.
-- **Document OCR**: stubbed — wire to Claude vision for PDFs/images.
+- ✅ **Polls signature verification**: `apps/api/src/modules/polls/signature.ts`
+  verifies Ed25519 + ECDSA-P256 WebCrypto signatures over canonical JSON
+  (poll_id, person_id, apartment_id, choice, signed_at). Rejects clock
+  skew >10min, signature mismatch, swapped pubkey, or unsupported algo.
+  PollsService.vote() enforces verification when poll.requires_signature.
+  New POST /v1/polls/:id/audit-signatures re-verifies every signed vote
+  on a poll (admin / cron use). 10 unit tests covering canonical form,
+  fingerprint stability, both algorithms, and adversarial cases.
+- ✅ **Document OCR**: `@bm/ai` gets `analyzeDocument()` which sends
+  PDFs / images to Claude vision and returns `{ ocr_text, ai_summary,
+  ai_metadata }`. DocumentsService fires it on every upload via
+  scheduleOcr() (non-blocking — failures don't block the upload); new
+  POST /v1/documents/versions/:id/ocr re-runs on demand. Reads file
+  bytes from Supabase Storage when configured, else from the local
+  .storage/ fallback. Graceful mock result when ANTHROPIC_API_KEY is
+  missing.
 
 ### Low priority / nice-to-have
 - **English i18n**: Hebrew is primary; English mirror partial.

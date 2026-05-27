@@ -16,15 +16,6 @@ export class DocumentsController {
     return this.docs.upload(req.claims.tenant_id, req.claims.sub, body);
   }
 
-  @Post(':id/versions')
-  addVersion(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-    @Body() body: { file_id: string; notes?: string },
-  ) {
-    return this.docs.addVersion(req.claims.tenant_id, req.claims.sub, id, body.file_id, body.notes);
-  }
-
   @Get()
   list(
     @Req() req: AuthenticatedRequest,
@@ -34,8 +25,27 @@ export class DocumentsController {
     return this.docs.list(req.claims.tenant_id, buildingId, category);
   }
 
+  // ---- Literal sub-routes (before :id catches) ----
+
   @Get('expiring-soon')
   expiringSoon(@Req() req: AuthenticatedRequest, @Query('days') days?: string) {
     return this.docs.expiringSoon(req.claims.tenant_id, days ? Number(days) : 30);
+  }
+
+  /** Manual re-run OCR + AI analysis on a specific version. */
+  @Post('versions/:versionId/ocr')
+  rerunOcr(@Req() req: AuthenticatedRequest, @Param('versionId') versionId: string) {
+    return this.docs.runOcr(req.claims.tenant_id, versionId);
+  }
+
+  // ---- :id routes ----
+
+  @Post(':id/versions')
+  addVersion(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { file_id: string; notes?: string },
+  ) {
+    return this.docs.addVersion(req.claims.tenant_id, req.claims.sub, id, body.file_id, body.notes);
   }
 }

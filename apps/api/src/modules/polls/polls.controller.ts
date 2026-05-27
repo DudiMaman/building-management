@@ -1,8 +1,24 @@
-import { Body, Controller, ForbiddenException, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { PollsService } from './polls.service';
 import { SupabaseJwtGuard, type AuthenticatedRequest } from '../auth/supabase-jwt.guard';
 import { CreatePollSchema } from '@bm/shared';
 import { ZodPipe } from '../../common/zod.pipe';
+import type { VoteSignaturePayload } from './signature';
+
+interface VoteBody {
+  apartment_id: string;
+  choice: unknown;
+  signature?: VoteSignaturePayload;
+}
 
 @Controller('polls')
 @UseGuards(SupabaseJwtGuard)
@@ -16,11 +32,7 @@ export class PollsController {
   }
 
   @Post(':id/votes')
-  vote(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-    @Body() body: { apartment_id: string; choice: unknown; signature?: string },
-  ) {
+  vote(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: VoteBody) {
     if (!req.claims.person_id) throw new ForbiddenException();
     return this.polls.vote(
       req.claims.tenant_id,
@@ -35,5 +47,11 @@ export class PollsController {
   @Get(':id/results')
   results(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.polls.results(req.claims.tenant_id, id);
+  }
+
+  @Get(':id/audit-signatures')
+  auditSignatures(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    if (req.claims.role === 'resident') throw new ForbiddenException();
+    return this.polls.auditSignatures(req.claims.tenant_id, id);
   }
 }
