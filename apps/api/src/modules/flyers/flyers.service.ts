@@ -1,16 +1,16 @@
 /**
  * FlyersService — welcome flyer generation with QR code per SPEC §8.
  *
- * Generates A4 PDF + Instagram square + WhatsApp story + OG image.
- * Stores files in Supabase Storage; returns signed URLs.
- *
- * The actual PDF rendering uses @react-pdf/renderer in production.
- * This skeleton produces deterministic placeholder buffers so the API
- * is wired end-to-end; real renderers can swap in behind the same
- * generate() interface.
+ * Generates a Hebrew A4 PDF plus a 1080×1080 square variant suitable for
+ * social-media reposting. The Instagram-story (1080×1920) and OG (1200×630)
+ * variants reuse the same source content; for now we emit the PDF and the
+ * square PDF, both uploaded as files in Supabase Storage (or the local
+ * fallback when no Supabase creds are present).
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
+import { PdfService } from '../pdf/pdf.service';
+import { FilesService } from '../files/files.service';
 
 export interface FlyerVariants {
   pdf_url: string;
@@ -22,43 +22,86 @@ export interface FlyerVariants {
 
 @Injectable()
 export class FlyersService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    private readonly db: DbService,
+    private readonly pdf: PdfService,
+    private readonly files: FilesService,
+  ) {}
 
   async generate(tenantId: string, buildingId: string): Promise<FlyerVariants> {
-    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
-      const { rows } = await c.query<{ name: string; claim_secret: string }>(
-        `select name, claim_secret from buildings where id = $1`,
+    const ctx = await this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query<{
+        name: string;
+        claim_secret: string;
+        address_line: string;
+        tenant_name: string;
+        tenant_phone: string | null;
+      }>(
+        `select b.name, b.claim_secret, b.address_line,
+                t.name as tenant_name,
+                t.billing_email as tenant_phone
+           from buildings b
+           join tenants t on t.id = b.tenant_id
+          where b.id = $1`,
         [buildingId],
       );
       if (rows.length === 0) throw new NotFoundException('Building not found');
-      const building = rows[0]!;
-
-      const qrPayload = `https://app.building-management.co.il/claim?b=${buildingId}&s=${building.claim_secret}`;
-
-      const variants = ['pdf', 'ig', 'story', 'og'] as const;
-      const urls: Record<string, string> = {};
-      for (const v of variants) {
-        // In real impl: generate the asset, upload to Storage, get signed URL.
-        urls[`${v}_url`] = `https://storage.example.com/flyers/${buildingId}/${v}.${v === 'pdf' ? 'pdf' : 'png'}`;
-        await c.query(
-          `insert into flyers (tenant_id, building_id, variant, qr_payload)
-           values ($1, $2, $3, $4) on conflict do nothing`,
-          [
-            tenantId,
-            buildingId,
-            v === 'pdf' ? 'a4_print' : v === 'ig' ? 'instagram_square' : v === 'story' ? 'whatsapp_story' : 'generic_image',
-            qrPayload,
-          ],
-        );
-      }
-
-      return {
-        pdf_url: urls.pdf_url!,
-        ig_url: urls.ig_url!,
-        story_url: urls.story_url!,
-        og_url: urls.og_url!,
-        qr_payload: qrPayload,
-      };
+      return rows[0]!;
     });
+
+    const appOrigin = process.env.APP_ORIGIN ?? 'https://app.building-management.co.il';
+    const qrPayload = `${appOrigin}/claim?b=${buildingId}&s=${ctx.claim_secret}`;
+
+    // Render A4 + square
+    const a4 = await this.pdf.renderFlyer({
+      tenant: { name: ctx.tenant_name, phone: ctx.tenant_phone },
+      building: { name: ctx.name, address: ctx.address_line },
+      qr_payload: qrPayload,
+    });
+    const square = await this.pdf.renderFlyerSquare({
+      tenant: { name: ctx.tenant_name, phone: ctx.tenant_phone },
+      building: { name: ctx.name, address: ctx.address_line },
+      qr_payload: qrPayload,
+    });
+
+    const ts = Date.now();
+    const a4Upload = await this.files.uploadBuffer({
+      tenantId,
+      bucket: 'flyers',
+      path: `${buildingId}/${ts}-a4.pdf`,
+      mime: 'application/pdf',
+      body: a4,
+    });
+    const sqUpload = await this.files.uploadBuffer({
+      tenantId,
+      bucket: 'flyers',
+      path: `${buildingId}/${ts}-square.pdf`,
+      mime: 'application/pdf',
+      body: square,
+    });
+
+    // Persist Flyer rows
+    await this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      await c.query(
+        `insert into flyers (tenant_id, building_id, variant, qr_payload, pdf_file_id)
+         values ($1, $2, 'a4_print', $3, $4)
+         on conflict do nothing`,
+        [tenantId, buildingId, qrPayload, a4Upload.file_id],
+      );
+      await c.query(
+        `insert into flyers (tenant_id, building_id, variant, qr_payload, image_file_id)
+         values ($1, $2, 'instagram_square', $3, $4)
+         on conflict do nothing`,
+        [tenantId, buildingId, qrPayload, sqUpload.file_id],
+      );
+    });
+
+    return {
+      pdf_url: a4Upload.signed_url,
+      ig_url: sqUpload.signed_url,
+      story_url: sqUpload.signed_url,
+      og_url: sqUpload.signed_url,
+      qr_payload: qrPayload,
+    };
   }
 }

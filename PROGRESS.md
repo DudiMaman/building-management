@@ -142,7 +142,14 @@ These cannot be done by the AI agent and need you:
 These are items intentionally stubbed or simplified for the autonomous build:
 
 ### High priority
-- **PDF generation**: FlyersService and InvoicingService return placeholder URLs. Implement `@react-pdf/renderer` server-side with embedded Hebrew fonts (Heebo, Rubik).
+- ✅ **PDF generation**: `apps/api/src/modules/pdf/` now produces real PDFs for
+  invoices (Hebrew tax-compliant, with ITA allocation number) and flyers
+  (A4 + 1080×1080 square) via `pdfkit` + `qrcode`. Files are uploaded
+  through `FilesService` (Supabase Storage when creds are present, local
+  `.storage/` directory in dev). Heebo TTFs are loaded from
+  `apps/api/assets/fonts/` when present (see README) — otherwise the
+  service falls back to Helvetica so PDFs are still produced. Custom RTL
+  shaper at `src/modules/pdf/hebrew.ts` (simple BiDi pass, unit-tested).
 - **Tranzila iframe**: `apps/mobile-resident/app/pay.tsx` uses a placeholder URL — wire to real Tranzila iframe with token callback handler.
 - **Supabase Auth wiring**: `apps/admin/src/app/login/page.tsx` is a placeholder form. Wire to `@supabase/ssr`.
 - **API client in apps**: admin/mobile apps currently use static data. Add SWR/tRPC client wired to API base URL.

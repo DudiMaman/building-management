@@ -11,6 +11,8 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
 import { ItaClearanceAdapter } from './ita-clearance.adapter';
+import { PdfService, type InvoiceLineItem as PdfLineItem } from '../pdf/pdf.service';
+import { FilesService } from '../files/files.service';
 import { computeVat } from '@bm/shared';
 import type { IssueInvoice } from '@bm/shared';
 import type { Invoice } from '@bm/db';
@@ -22,7 +24,72 @@ export class InvoicingService {
   constructor(
     private readonly db: DbService,
     private readonly ita: ItaClearanceAdapter,
+    private readonly pdf: PdfService,
+    private readonly files: FilesService,
   ) {}
+
+  /** Render + upload the invoice PDF, store its file_id on the invoice row. */
+  private async generateInvoicePdf(
+    tenantId: string,
+    invoice: Invoice,
+    lineItems: PdfLineItem[],
+  ): Promise<string> {
+    const meta = await this.db.query<{
+      tenant_name: string;
+      legal_name: string | null;
+      vat_id: string | null;
+      customer_name: string | null;
+      customer_email: string | null;
+    }>(
+      `select t.name as tenant_name, t.legal_name, t.vat_id,
+              p.full_name as customer_name, p.email as customer_email
+         from invoices i
+         join tenants t on t.id = i.tenant_id
+         left join people p on p.id = i.customer_person_id
+        where i.id = $1`,
+      [invoice.id],
+    );
+    const m = meta.rows[0];
+    const buffer = await this.pdf.renderInvoice({
+      tenant: {
+        name: m?.tenant_name ?? 'Tenant',
+        legal_name: m?.legal_name ?? null,
+        vat_id: m?.vat_id ?? null,
+      },
+      invoice: {
+        type: invoice.type,
+        serial_number: invoice.serial_number ?? 0,
+        issued_at: invoice.issued_at ?? new Date().toISOString(),
+        description: invoice.description,
+        subtotal: Number(invoice.subtotal),
+        vat_rate_pct: Number(invoice.vat_rate_pct),
+        vat_amount: Number(invoice.vat_amount),
+        total: Number(invoice.total),
+        currency: invoice.currency,
+        ita_allocation_number: invoice.ita_allocation_number,
+      },
+      customer: {
+        name: invoice.customer_name_snapshot ?? m?.customer_name ?? '',
+        address: invoice.customer_address_snapshot,
+        vat_id: invoice.customer_vat_id_snapshot,
+      },
+      lineItems,
+    });
+
+    const upload = await this.files.uploadBuffer({
+      tenantId,
+      bucket: 'invoices',
+      path: `${invoice.tenant_id}/${invoice.id}.pdf`,
+      mime: 'application/pdf',
+      body: buffer,
+      piiTag: 'financial',
+    });
+    await this.db.query(`update invoices set pdf_file_id = $1 where id = $2`, [
+      upload.file_id,
+      invoice.id,
+    ]);
+    return upload.file_id;
+  }
 
   async issue(tenantId: string, actorUserId: string, input: IssueInvoice): Promise<Invoice> {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
@@ -150,8 +217,30 @@ export class InvoicingService {
           [invoice.id, String(serialNumber), input.charge_ids],
         );
       }
+      // Generate PDF + attach to row. This is best-effort: failure shouldn't
+      // roll back the issued invoice (the row is the source of truth; the
+      // PDF can be re-rendered later).
+      try {
+        await this.generateInvoicePdf(tenantId, invoice, lineItems);
+      } catch (err) {
+        this.logger.error(`Invoice PDF render failed for ${invoice.id}: ${(err as Error).message}`);
+      }
       return invoice;
     });
+  }
+
+  /** Re-render and re-upload an invoice's PDF (admin tool). */
+  async regeneratePdf(tenantId: string, invoiceId: string): Promise<string> {
+    const inv = await this.db.query<Invoice>(`select * from invoices where id = $1`, [invoiceId]);
+    if (inv.rows.length === 0) throw new NotFoundException('Invoice not found');
+    const items = await this.db.query<PdfLineItem>(
+      `select description, quantity::int, unit_price::float8 as unit_price,
+              subtotal::float8 as subtotal, vat_rate_pct::float8 as vat_rate_pct,
+              vat_amount::float8 as vat_amount, total::float8 as total
+         from invoice_line_items where invoice_id = $1 order by position`,
+      [invoiceId],
+    );
+    return this.generateInvoicePdf(tenantId, inv.rows[0]!, items.rows);
   }
 
   /**
@@ -205,7 +294,21 @@ export class InvoicingService {
       );
       // Mark original as replaced
       await client.query(`update invoices set status = 'replaced' where id = $1`, [orig.id]);
-      return rows[0]!;
+      const creditNote = rows[0]!;
+      // Generate PDF for the credit note (reuses the original's line items, negated)
+      try {
+        const items = await client.query<PdfLineItem>(
+          `select description, quantity::int, unit_price::float8 as unit_price,
+                  (-subtotal::float8) as subtotal, vat_rate_pct::float8 as vat_rate_pct,
+                  (-vat_amount::float8) as vat_amount, (-total::float8) as total
+             from invoice_line_items where invoice_id = $1 order by position`,
+          [orig.id],
+        );
+        await this.generateInvoicePdf(tenantId, creditNote, items.rows);
+      } catch (err) {
+        this.logger.error(`Credit-note PDF render failed for ${creditNote.id}: ${(err as Error).message}`);
+      }
+      return creditNote;
     });
   }
 

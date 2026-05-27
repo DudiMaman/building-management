@@ -3,8 +3,11 @@ import { InvoicingController } from './invoicing.controller';
 import { InvoicingService } from './invoicing.service';
 import { ItaClearanceAdapter } from './ita-clearance.adapter';
 import { ItaClearanceMockAdapter } from './ita-clearance.mock';
+import { PdfModule } from '../pdf/pdf.module';
+import { FilesModule } from '../files/files.module';
 
 @Module({
+  imports: [PdfModule, FilesModule],
   controllers: [InvoicingController],
   providers: [
     InvoicingService,
