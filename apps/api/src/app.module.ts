@@ -31,6 +31,7 @@ import { AddonsModule } from './modules/addons/addons.module';
 import { AccessModule } from './modules/access/access.module';
 import { FlyersModule } from './modules/flyers/flyers.module';
 import { LeadsModule } from './modules/leads/leads.module';
+import { KbModule } from './modules/kb/kb.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { LeadsModule } from './modules/leads/leads.module';
     AccessModule,
     FlyersModule,
     LeadsModule,
+    KbModule,
   ],
   controllers: [HealthController],
 })

@@ -10,6 +10,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
 import { FilesService } from '../files/files.service';
+import { KbService } from '../kb/kb.service';
 import { analyzeDocument } from '@bm/ai';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,6 +24,7 @@ export class DocumentsService {
   constructor(
     private readonly db: DbService,
     private readonly files: FilesService,
+    private readonly kb: KbService,
   ) {}
 
   async upload(
@@ -213,6 +215,17 @@ export class DocumentsService {
         where id = $4`,
       [analysis.ocr_text, analysis.ai_summary, JSON.stringify(analysis.ai_metadata), versionId],
     );
+
+    // Publish into the KB so the AI bot can cite this document. Best-
+    // effort — failure here doesn't fail the OCR call.
+    if (analysis.ocr_text || analysis.ai_summary) {
+      try {
+        await this.kb.ingestFromDocumentVersion(tenantId, versionId);
+      } catch (err) {
+        this.logger.warn(`KB ingest failed for ${versionId}: ${(err as Error).message}`);
+      }
+    }
+
     return { source: analysis.source };
   }
 

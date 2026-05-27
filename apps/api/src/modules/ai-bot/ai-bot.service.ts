@@ -10,6 +10,7 @@ import { complete, CUSTOMER_SERVICE_PROMPT_V1, ALL_BOT_TOOLS, type PromptContext
 import { DbService } from '../../db/db.service';
 import { AssignmentService } from '../apartments/assignment.service';
 import { TicketsService } from '../tickets/tickets.service';
+import { KbService } from '../kb/kb.service';
 import type { Message } from '@bm/db';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class AiBotService {
     private readonly db: DbService,
     private readonly assignments: AssignmentService,
     private readonly tickets: TicketsService,
+    private readonly kb: KbService,
   ) {}
 
   /**
@@ -93,6 +95,14 @@ export class AiBotService {
         });
       case 'who_is_my_bill_payer':
         return this.assignments.listCurrent(tenantId, input.apartment_id);
+      case 'search_kb': {
+        const hits = await this.kb.search(tenantId, String(input.query ?? ''), Number(input.limit ?? 5));
+        return hits.map((h) => ({
+          document: h.document_title,
+          content: h.content,
+          rank: h.rank,
+        }));
+      }
       // Other tools: noop in skeleton
       default:
         return { ok: true };

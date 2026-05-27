@@ -247,7 +247,15 @@ These are items intentionally stubbed or simplified for the autonomous build:
   marketing / shared, on push to main, and on `workflow_dispatch` with
   an optional base-URL input. HTML report uploaded as artifact.
 - **i18n on admin**: hardcoded Hebrew strings; should load from `@bm/shared/i18n`.
-- **AI bot RAG**: KB chunks table exists but ingestion + retrieval not wired.
+- 🟡 **AI bot RAG**: KbService (`apps/api/src/modules/kb`) handles
+  ingestion (chunking with paragraph-aware breaks + 50-char overlap +
+  idempotent upsert by title+file) and retrieval via Postgres `tsvector`
+  full-text search (with ILIKE fallback). Migration 0014 adds the tsv
+  column + GIN index. DocumentsService auto-publishes every OCR'd
+  version into the KB. AiBot's `search_kb` tool now routes to the real
+  KbService. Embedding-based search via OpenAI (the existing
+  `embedding vector(1536)` column) is the planned upgrade — the schema
+  and code path are ready, just need the API key.
 - ✅ **Polls signature verification**: `apps/api/src/modules/polls/signature.ts`
   verifies Ed25519 + ECDSA-P256 WebCrypto signatures over canonical JSON
   (poll_id, person_id, apartment_id, choice, signed_at). Rejects clock
