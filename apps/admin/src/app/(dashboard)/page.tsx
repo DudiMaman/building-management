@@ -1,53 +1,105 @@
+'use client';
+import useSWR from 'swr';
 import { Building2, AlertCircle, Wallet, CheckCircle } from 'lucide-react';
+import {
+  swrFetcher,
+  type CollectionRate,
+  type OpenTicketsStats,
+  type Building,
+} from '@/lib/api';
 
 export default function DashboardPage() {
+  const { data: buildings } = useSWR<Building[]>('/buildings', swrFetcher);
+  const { data: collection } = useSWR<CollectionRate>('/reports/collection-rate', swrFetcher);
+  const { data: tickets } = useSWR<OpenTicketsStats>('/reports/open-tickets', swrFetcher);
+
+  const buildingCount = buildings?.length ?? '—';
+  const openTickets = tickets?.total ?? '—';
+  const urgent = tickets?.urgent ?? 0;
+  const collectionRate = collection ? `${Math.round(collection.rate * 100)}%` : '—';
+  const overdueCharges = collection?.overdue_count ?? 0;
+
   return (
     <div>
       <h1 className="text-2xl font-bold">לוח בקרה</h1>
       <p className="mt-1 text-sm text-slate-600">סקירה כללית של הפעילות בחברת הניהול</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard icon={Building2} label="בניינים פעילים" value="12" sub="+1 החודש" tone="primary" />
-        <KpiCard icon={AlertCircle} label="פניות פתוחות" value="8" sub="3 דחופות" tone="amber" />
-        <KpiCard icon={Wallet} label="אחוז גבייה" value="94%" sub="↑ 2.3%" tone="green" />
-        <KpiCard icon={CheckCircle} label="משימות היום" value="14" sub="5 הושלמו" tone="indigo" />
+        <KpiCard
+          icon={Building2}
+          label="בניינים פעילים"
+          value={String(buildingCount)}
+          sub=""
+          tone="primary"
+        />
+        <KpiCard
+          icon={AlertCircle}
+          label="פניות פתוחות"
+          value={String(openTickets)}
+          sub={Number(urgent) > 0 ? `${urgent} דחופות` : 'אין דחופות'}
+          tone="amber"
+        />
+        <KpiCard
+          icon={Wallet}
+          label="אחוז גבייה"
+          value={collectionRate}
+          sub={`${overdueCharges} בפיגור`}
+          tone="green"
+        />
+        <KpiCard
+          icon={CheckCircle}
+          label={'חיובים סה"כ'}
+          value={String(collection?.charge_count ?? '—')}
+          sub={`${collection?.paid_count ?? 0} שולמו`}
+          tone="indigo"
+        />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <section className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold">פעילות אחרונה</h2>
-          <ul className="mt-4 space-y-3 text-sm">
-            <li className="flex justify-between border-b border-slate-100 pb-3">
-              <span>חיוב חודשי הופק - בניין הרצל 10</span>
-              <span className="text-slate-400">לפני 5 דק׳</span>
-            </li>
-            <li className="flex justify-between border-b border-slate-100 pb-3">
-              <span>פנייה חדשה: נזילה בדירה 12 (הרצל 10)</span>
-              <span className="text-slate-400">לפני 23 דק׳</span>
-            </li>
-            <li className="flex justify-between border-b border-slate-100 pb-3">
-              <span>צ׳ק חוזר - דירה 4ב (מגדל בן יהודה)</span>
-              <span className="text-slate-400">לפני שעה</span>
-            </li>
-            <li className="flex justify-between">
-              <span>חוזה שכירות חדש - דירה 7ג</span>
-              <span className="text-slate-400">לפני שעתיים</span>
-            </li>
-          </ul>
+          <h2 className="text-lg font-semibold">בניינים אחרונים</h2>
+          {!buildings ? (
+            <p className="mt-4 text-sm text-slate-500">טוען...</p>
+          ) : buildings.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-500">עדיין לא נוספו בניינים.</p>
+          ) : (
+            <ul className="mt-4 space-y-3 text-sm">
+              {buildings.slice(0, 5).map((b) => (
+                <li
+                  key={b.id}
+                  className="flex justify-between border-b border-slate-100 pb-3 last:border-b-0"
+                >
+                  <span className="font-medium">{b.name}</span>
+                  <span className="text-slate-500">{b.address_line}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="text-lg font-semibold">התראות חשובות</h2>
           <ul className="mt-4 space-y-3 text-sm">
-            <li className="rounded-lg bg-amber-50 p-3 text-amber-900">
-              ביטוח בניין פג בעוד 15 ימים
-            </li>
-            <li className="rounded-lg bg-red-50 p-3 text-red-900">
-              צ׳ק חוזר ממתין לטיפול
-            </li>
-            <li className="rounded-lg bg-primary-50 p-3 text-primary-900">
-              3 קריאות אורח חדשות
-            </li>
+            {Number(tickets?.sla_breached ?? 0) > 0 && (
+              <li className="rounded-lg bg-red-50 p-3 text-red-900">
+                {tickets!.sla_breached} פניות חרגו מ-SLA
+              </li>
+            )}
+            {Number(collection?.overdue_count ?? 0) > 0 && (
+              <li className="rounded-lg bg-amber-50 p-3 text-amber-900">
+                {collection!.overdue_count} חיובים בפיגור
+              </li>
+            )}
+            {Number(tickets?.urgent ?? 0) > 0 && (
+              <li className="rounded-lg bg-primary-50 p-3 text-primary-900">
+                {tickets!.urgent} פניות דחופות פתוחות
+              </li>
+            )}
+            {!tickets || (Number(tickets.total ?? 0) === 0 && Number(collection?.overdue_count ?? 0) === 0) ? (
+              <li className="rounded-lg bg-emerald-50 p-3 text-emerald-900">
+                אין התראות פתוחות 🎉
+              </li>
+            ) : null}
           </ul>
         </section>
       </div>

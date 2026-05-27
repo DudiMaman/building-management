@@ -166,7 +166,14 @@ These are items intentionally stubbed or simplified for the autonomous build:
   link. Topbar shows the current user and a sign-out button. Marketing
   signup wires Supabase signUp + `POST /v1/tenants/signup` end-to-end
   (the latter's broken Zod schema was also fixed).
-- **API client in apps**: admin/mobile apps currently use static data. Add SWR/tRPC client wired to API base URL.
+- 🟡 **API client in apps**: admin web now has a real SWR-backed client
+  (`apps/admin/src/lib/api.ts`) that forwards the Supabase access token
+  on every request. Dashboard, buildings list, and invoices list are
+  wired to live data (`/v1/reports/*`, `/v1/buildings`, `/v1/invoices`)
+  with empty / loading / error states. Mobile resident's `pay.tsx` and
+  the iframe flow use `apps/mobile-resident/app/lib/api.ts`. Remaining
+  admin screens (apartments, people, tasks, tickets, etc.) and the
+  resident home/charges screens still use static data.
 - **Push notifications setup**: Expo Push token registration on mobile not yet wired (need `expo-notifications`).
 - **Background job runner**: `BullMQ` queues defined in `app.module.ts` but worker process not yet bootstrapped. Add `apps/api/src/main.worker.ts`.
 - **Subscribe to PR webhooks**: ITA clearance, Tranzila notify, WhatsApp messages — webhook controllers exist but need production HMAC secrets.
