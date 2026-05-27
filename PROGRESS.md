@@ -237,7 +237,15 @@ These are items intentionally stubbed or simplified for the autonomous build:
 - ✅ **OpenAPI / Swagger**: `@nestjs/swagger` mounted at `/docs` in dev
   (and in prod when `API_DOCS_ENABLED=true`). Bearer-auth scheme
   declared with the Supabase JWT format.
-- **E2E tests**: Playwright config not set up.
+- ✅ **E2E tests**: new `apps/e2e/` package with Playwright. 23 tests
+  covering home (hero, stats, FAQ, pricing toggle, cookie banner), nav
+  to every top-level page (features / who / pricing / testimonials /
+  faq / blog / contact / legal/* / en), blog index + detail, and the
+  contact form's mailto-fallback path. Boots the marketing dev server
+  automatically, or runs against `PLAYWRIGHT_BASE_URL` (e.g., the live
+  GitHub Pages URL). `.github/workflows/e2e.yml` runs on PRs touching
+  marketing / shared, on push to main, and on `workflow_dispatch` with
+  an optional base-URL input. HTML report uploaded as artifact.
 - **i18n on admin**: hardcoded Hebrew strings; should load from `@bm/shared/i18n`.
 - **AI bot RAG**: KB chunks table exists but ingestion + retrieval not wired.
 - ✅ **Polls signature verification**: `apps/api/src/modules/polls/signature.ts`
