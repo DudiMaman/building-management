@@ -3,59 +3,12 @@ import Link from 'next/link';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Calendar, ArrowLeft } from 'lucide-react';
+import { posts } from '@/lib/posts';
 
 export const metadata: Metadata = {
   title: 'בלוג — ניהול מבנים',
   description: 'מאמרים על ניהול ועד בית, גבייה, ואסטרטגיה בעולם ניהול הנכסים.',
 };
-
-interface Post {
-  slug: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  readTime: string;
-  category: string;
-}
-
-const posts: Post[] = [
-  {
-    slug: 'how-to-improve-collection-rate',
-    title: 'איך לשפר את אחוז הגבייה ב-12% בחצי שנה',
-    excerpt:
-      'המדריך המעשי לחברות ניהול — אסטרטגיות תזכורת, אסקלציה אוטומטית, ואיך לטפל בדיירים בעייתיים בלי לאבד אותם.',
-    date: '15 במאי 2026',
-    readTime: '7 דק׳',
-    category: 'גבייה',
-  },
-  {
-    slug: 'bounced-check-workflow',
-    title: 'צ׳ק חוזר? המדריך המלא לטיפול אוטומטי',
-    excerpt:
-      'מה החוק אומר, איך להוציא תיק לעורך דין ב-2 קליקים, ולמה רוב חברות הניהול מאבדות 8% מהגבייה בגלל טיפול ידני.',
-    date: '8 במאי 2026',
-    readTime: '5 דק׳',
-    category: 'פיננסים',
-  },
-  {
-    slug: 'whatsapp-bot-customer-service',
-    title: 'בוט WhatsApp לחברת ניהול: יתרונות וחסרונות',
-    excerpt:
-      'איך בוט AI יכול לטפל ב-80% מהשאלות של הדיירים, מתי כדאי להסלים לבן אדם, ואיך בונים סקריפט שעובד בעברית.',
-    date: '1 במאי 2026',
-    readTime: '6 דק׳',
-    category: 'טכנולוגיה',
-  },
-  {
-    slug: 'rental-vaad-responsibility',
-    title: 'שוכר מול בעלים: מי משלם את הוועד באמת?',
-    excerpt:
-      'מבט על הדין הישראלי, על מה שכתוב בחוזה השכירות, ואיך לעצב מערכת ניהול שלא קורסת מול תרחישי חיים מורכבים.',
-    date: '22 באפריל 2026',
-    readTime: '8 דק׳',
-    category: 'משפט',
-  },
-];
 
 export default function BlogPage() {
   return (
@@ -86,7 +39,11 @@ export default function BlogPage() {
                     <span>·</span>
                     <span>{p.readTime}</span>
                   </div>
-                  <h2 className="mt-3 text-xl font-bold leading-snug">{p.title}</h2>
+                  <h2 className="mt-3 text-xl font-bold leading-snug">
+                    <Link href={`/blog/${p.slug}`} className="hover:text-primary">
+                      {p.title}
+                    </Link>
+                  </h2>
                   <p className="mt-2 text-slate-600">{p.excerpt}</p>
                   <Link
                     href={`/blog/${p.slug}`}
@@ -100,7 +57,7 @@ export default function BlogPage() {
             </div>
 
             <p className="mt-12 text-center text-sm text-slate-500">
-              עוד מאמרים בקרוב. הירשמו לעדכונים ב-
+              עוד מאמרים בקרוב. דברו איתנו ב-
               <Link href="/contact" className="text-primary hover:underline">צור קשר</Link>.
             </p>
           </div>

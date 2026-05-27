@@ -18,17 +18,33 @@ export default function ContactPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const payload = { name, email, phone, company, message };
     try {
-      const res = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, company, message }),
-      });
-      if (!res.ok) {
-        const body = await res.text();
-        throw new Error(body.slice(0, 200) || 'שליחה נכשלה');
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (apiBase) {
+        const res = await fetch(`${apiBase}/v1/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const body = await res.text();
+          throw new Error(body.slice(0, 200) || 'שליחה נכשלה');
+        }
+        setDone(true);
+      } else {
+        // Static-deploy fallback: open the user's mail client with a
+        // prefilled draft. Keeps the marketing site useful with no
+        // backend wired up (e.g. the GitHub Pages preview).
+        const body = encodeURIComponent(
+          `שם: ${name}\nאימייל: ${email}\nטלפון: ${phone}\nחברה: ${company}\n\nהודעה:\n${message}`,
+        );
+        const subject = encodeURIComponent(`פנייה מאתר הבית — ${company || name}`);
+        if (typeof window !== 'undefined') {
+          window.location.href = `mailto:hello@building-management.co.il?subject=${subject}&body=${body}`;
+        }
+        setDone(true);
       }
-      setDone(true);
     } catch (err) {
       setError((err as Error).message);
     } finally {

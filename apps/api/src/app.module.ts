@@ -30,6 +30,7 @@ import { FilesModule } from './modules/files/files.module';
 import { AddonsModule } from './modules/addons/addons.module';
 import { AccessModule } from './modules/access/access.module';
 import { FlyersModule } from './modules/flyers/flyers.module';
+import { LeadsModule } from './modules/leads/leads.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { FlyersModule } from './modules/flyers/flyers.module';
     AddonsModule,
     AccessModule,
     FlyersModule,
+    LeadsModule,
   ],
   controllers: [HealthController],
 })
