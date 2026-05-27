@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { LoggerModule } from 'nestjs-pino';
+import { randomUUID } from 'node:crypto';
 import { HealthController } from './health.controller';
 import { DbModule } from './db/db.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -32,6 +34,32 @@ import { FlyersModule } from './modules/flyers/flyers.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '.env.local'] }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.LOG_LEVEL ?? (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+        genReqId: (req) => (req.headers['x-request-id'] as string) || randomUUID(),
+        redact: {
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'req.body.password',
+            'req.body.token',
+            'req.body.card',
+            'res.headers["set-cookie"]',
+          ],
+          censor: '[REDACTED]',
+        },
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty', options: { translateTime: 'SYS:HH:MM:ss.l', singleLine: true } }
+            : undefined,
+        customLogLevel: (_req, res, err) => {
+          if (err || res.statusCode >= 500) return 'error';
+          if (res.statusCode >= 400) return 'warn';
+          return 'info';
+        },
+      },
+    }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     DbModule,
     AuthModule,

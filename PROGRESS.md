@@ -194,8 +194,14 @@ These are items intentionally stubbed or simplified for the autonomous build:
 
 ### Medium priority
 - **Admin web pages**: only login + dashboard + buildings + invoices + checks + documents implemented. Need: apartments, people, rental-contracts, tasks, tickets, charges, vendors, bulletin, polls, whatsapp inbox, ai-bot tuning, addons, reports, settings, audit-log.
-- **Pino logger integration**: configured in package.json but not yet wired into AppModule.
-- **OpenAPI / Swagger**: not exposed yet. Add `@nestjs/swagger`.
+- ✅ **Pino logger integration**: wired via `nestjs-pino` in `AppModule`.
+  Pretty-prints in dev (via `pino-pretty`), JSON in prod. Redacts
+  Authorization headers, cookies, passwords, tokens. Per-request id
+  reads `x-request-id` or generates a UUID. Statuses ≥500 log at error,
+  ≥400 at warn.
+- ✅ **OpenAPI / Swagger**: `@nestjs/swagger` mounted at `/docs` in dev
+  (and in prod when `API_DOCS_ENABLED=true`). Bearer-auth scheme
+  declared with the Supabase JWT format.
 - **E2E tests**: Playwright config not set up.
 - **i18n on admin**: hardcoded Hebrew strings; should load from `@bm/shared/i18n`.
 - **AI bot RAG**: KB chunks table exists but ingestion + retrieval not wired.
