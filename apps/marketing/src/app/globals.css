@@ -7,13 +7,49 @@
   --foreground: 17 24 39;
 }
 
-html, body {
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
   @apply text-slate-900;
   background: rgb(var(--background));
   color: rgb(var(--foreground));
+  font-family: 'Heebo', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* RTL-friendly defaults */
 body {
   direction: rtl;
+}
+
+/* Section reveal animation handled per-component via framer-motion;
+   utility class for things without it. */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Make the section anchors land below the sticky header. */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* Numeric inputs aligned right but readable. */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
 }

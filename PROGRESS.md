@@ -67,7 +67,20 @@ This document is updated continuously as development proceeds. It is the source 
 - ✅ ReportsModule (collection rate, AR aging, open tickets, per-person AR)
 
 ### M6 — Polish + Marketing GA ✅
-- ✅ apps/marketing (Next.js 14, Hebrew RTL, hero + features + who + pricing + testimonials + FAQ + footer + signup page)
+- ✅ apps/marketing — completed per SPEC §6:
+  - Hero with animated dashboard mockup + sparkline (framer-motion).
+  - 12-card features grid + step-by-step "how it works".
+  - Tabbed "who it's for" (4 personas, animated transitions).
+  - Pricing with monthly/annual toggle + interactive ROI calculator.
+  - Testimonials with star ratings, before/after metric, trusted-by bar.
+  - 8-Q FAQ accordion. Closing CTA banner.
+  - Dedicated pages: `/features`, `/who-its-for`, `/pricing`,
+    `/testimonials`, `/faq`, `/contact` (form + `/api/lead` route),
+    `/blog` (4 placeholder posts), `/signup`.
+  - Legal pages: `/legal/terms`, `/legal/privacy`, `/legal/dpa`.
+  - SEO: `sitemap.ts`, `robots.ts`, OpenGraph + Twitter cards, JSON-LD
+    structured data (Organization, WebSite, Product).
+  - Responsive nav (mobile burger), header chrome, RTL polish.
 - ✅ apps/admin (Next.js 14, Hebrew RTL, login, dashboard with KPIs, buildings list, invoices, checks, documents pages, full sidebar nav)
 - ✅ Tests:
   - currency.test.ts (VAT computation, installments split)
