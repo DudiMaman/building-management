@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Building, Mail, Phone, MapPin } from 'lucide-react';
+import { Newsletter } from './newsletter';
 
 export function Footer() {
   const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL ?? 'http://localhost:3001/login';
@@ -65,6 +66,16 @@ export function Footer() {
               <li><Link href="/legal/dpa" className="hover:text-primary">DPA</Link></li>
             </ul>
           </div>
+        </div>
+
+        <div className="mt-12 grid gap-6 rounded-2xl bg-slate-50 p-6 md:grid-cols-2 md:items-center md:gap-12">
+          <div>
+            <h4 className="text-lg font-semibold">קבלו עדכונים</h4>
+            <p className="mt-1 text-sm text-slate-600">
+              מאמרים על ניהול ועד בית, גבייה ואסטרטגיה — אחת לחודש, בלי SPAM.
+            </p>
+          </div>
+          <Newsletter />
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-slate-200 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">

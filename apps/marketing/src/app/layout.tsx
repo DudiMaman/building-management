@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import { CookieBanner } from '@/components/cookie-banner';
 
 const BASE = process.env.NEXT_PUBLIC_MARKETING_DOMAIN ?? 'https://building-management.co.il';
 
@@ -133,7 +134,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }
