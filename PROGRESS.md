@@ -181,7 +181,15 @@ These are items intentionally stubbed or simplified for the autonomous build:
   `PUT /v1/people/me/push-token` (DELETE on sign-out). Notification tap
   handler is registered in `_layout.tsx`; per-category deep linking is a
   follow-up. Mobile-maintenance still needs the same wiring.
-- **Background job runner**: `BullMQ` queues defined in `app.module.ts` but worker process not yet bootstrapped. Add `apps/api/src/main.worker.ts`.
+- ✅ **Background job runner**: separate worker process bootstrapped at
+  `apps/api/src/main.worker.ts` (`pnpm --filter @bm/api start:worker` /
+  `dev:worker`). BullMQ queues (`billing`, `dunning`, `notifications`,
+  `documents`, `files`) live in `src/queues/queues.module.ts` with a
+  shared payload contract in `queues.ts`. Workers implemented:
+  `BillingWorker` (`run-due-schedules` + `run-cycle`) and `DunningWorker`
+  (advances overdue stages per SPEC §11.4). `SchedulerService` enqueues
+  the nightly jobs at 02:00 / 03:00 Asia/Jerusalem via `@nestjs/schedule`.
+  Web API does not run the workers (separate deploy unit).
 - **Subscribe to PR webhooks**: ITA clearance, Tranzila notify, WhatsApp messages — webhook controllers exist but need production HMAC secrets.
 
 ### Medium priority
