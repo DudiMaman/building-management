@@ -158,7 +158,14 @@ These are items intentionally stubbed or simplified for the autonomous build:
   verifies the state signature, marks the Payment captured/failed, and
   saves the returned Tranzila token as a PaymentMethod for one-tap reuse.
   Tested at the adapter level (signing, tamper rejection, URL shape).
-- **Supabase Auth wiring**: `apps/admin/src/app/login/page.tsx` is a placeholder form. Wire to `@supabase/ssr`.
+- ✅ **Supabase Auth wiring**: admin login is now backed by `@supabase/ssr`
+  (`apps/admin/src/lib/supabase/{client,server}.ts` + `src/middleware.ts`).
+  Middleware refreshes the session on every request and redirects
+  anonymous traffic to `/login`; logged-in users hitting `/login` are
+  bounced back to the dashboard. Login supports password sign-in + magic
+  link. Topbar shows the current user and a sign-out button. Marketing
+  signup wires Supabase signUp + `POST /v1/tenants/signup` end-to-end
+  (the latter's broken Zod schema was also fixed).
 - **API client in apps**: admin/mobile apps currently use static data. Add SWR/tRPC client wired to API base URL.
 - **Push notifications setup**: Expo Push token registration on mobile not yet wired (need `expo-notifications`).
 - **Background job runner**: `BullMQ` queues defined in `app.module.ts` but worker process not yet bootstrapped. Add `apps/api/src/main.worker.ts`.

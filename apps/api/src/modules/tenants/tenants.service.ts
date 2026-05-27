@@ -11,7 +11,7 @@ export class TenantsService {
    * Tenant signup. Public endpoint — does NOT require an existing tenant_id.
    * Creates Tenant row + initial mgmt_admin row + invoice series.
    */
-  async signup(input: CreateTenant & { admin_user_id: string }): Promise<Tenant> {
+  async signup(input: CreateTenant & { admin_user_id: string; admin_full_name?: string }): Promise<Tenant> {
     const res = await this.db.query<Tenant>(
       `insert into tenants (name, legal_name, vat_id, billing_email, plan, trial_ends_at)
        values ($1, $2, $3, $4, 'trial', now() + interval '30 days')
@@ -24,7 +24,7 @@ export class TenantsService {
     await this.db.query(
       `insert into management_users (tenant_id, full_name, email, role, supabase_user_id)
        values ($1, $2, $3, 'mgmt_admin', $4)`,
-      [tenant.id, input.name, input.billing_email, input.admin_user_id],
+      [tenant.id, input.admin_full_name ?? input.name, input.billing_email, input.admin_user_id],
     );
 
     // Seed default invoice series
