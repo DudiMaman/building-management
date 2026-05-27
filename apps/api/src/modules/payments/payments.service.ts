@@ -1,6 +1,7 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DbService } from '../../db/db.service';
-import { TranzilaAdapter } from './tranzila.adapter';
+import { TranzilaAdapter, type IframeSession } from './tranzila.adapter';
 import type { CreatePayment } from '@bm/shared';
 import type { Charge, Payment, PaymentMethod } from '@bm/db';
 
@@ -100,6 +101,174 @@ export class PaymentsService {
         ],
       );
       return rows[0]!;
+    });
+  }
+
+  /**
+   * Build a Tranzila iframe session for a resident to pay a specific charge.
+   * Returns the iframe URL (PCI SAQ-A safe — card data never touches our
+   * servers) plus an HMAC-signed state that protects the postMessage
+   * callback against forgery.
+   */
+  async createIframeSession(
+    tenantId: string,
+    payerPersonId: string,
+    chargeId: string,
+    installments = 1,
+  ): Promise<IframeSession & { charge: Charge }> {
+    const charge = await this.fetchCharge(tenantId, chargeId);
+    if (charge.status === 'paid') {
+      throw new BadRequestException('Charge already paid');
+    }
+    // Permission: payer must be on the apartment's assignments.
+    const ok = await this.canPayerAccessCharge(tenantId, payerPersonId, charge);
+    if (!ok) throw new ForbiddenException('Not authorized for this charge');
+
+    const outstanding = Number(charge.amount) - Number(charge.paid_amount);
+    if (outstanding <= 0) {
+      throw new BadRequestException('No outstanding balance on this charge');
+    }
+    const person = await this.fetchPerson(tenantId, payerPersonId);
+    const txnref = `${chargeId.slice(0, 8)}-${randomUUID().slice(0, 8)}`;
+    const appOrigin = process.env.APP_ORIGIN ?? 'https://app.building-management.co.il';
+    const session = this.tranzila.buildIframeSession({
+      amountIls: outstanding,
+      currency: 'ILS',
+      installments,
+      chargeId,
+      personId: payerPersonId,
+      txnref,
+      successUrl: `${appOrigin}/payment-success?txnref=${txnref}`,
+      failureUrl: `${appOrigin}/payment-failed?txnref=${txnref}`,
+      email: person?.email ?? undefined,
+      contact: person?.full_name,
+      phone: person?.phone_e164 ?? undefined,
+    });
+
+    // Persist a pending Payment row so the webhook / postMessage can find it.
+    await this.db.withTenantContext({ tenant_id: tenantId, role: 'resident', person_id: payerPersonId }, async (c) => {
+      await c.query(
+        `insert into payments
+          (tenant_id, charge_id, paid_by_person_id, method, amount, currency,
+           status, installments, tranzila_txn_id, raw_provider_json)
+         values ($1, $2, $3, 'card', $4, 'ILS', 'pending', $5, $6, $7)
+         on conflict do nothing`,
+        [
+          tenantId,
+          chargeId,
+          payerPersonId,
+          outstanding,
+          installments,
+          txnref,
+          JSON.stringify({ source: 'iframe', state: session.state }),
+        ],
+      );
+    });
+    return { ...session, charge };
+  }
+
+  /**
+   * Process a postMessage payload received by the mobile WebView when the
+   * Tranzila iframe completes. Verifies HMAC state, looks up the matching
+   * pending Payment row, finalizes its status, and (on success) persists
+   * the resulting token as a PaymentMethod if returned.
+   */
+  async handleIframeResult(input: {
+    state: string;
+    response_code: string;
+    txn_id?: string | null;
+    token?: string | null;
+    last4?: string | null;
+    brand?: string | null;
+    raw: Record<string, unknown>;
+  }): Promise<{ ok: boolean; charge_id?: string; payment_id?: string; reason?: string }> {
+    const verified = this.tranzila.verifyState(input.state);
+    if (!verified) {
+      return { ok: false, reason: 'Invalid state signature' };
+    }
+    const { charge_id, person_id, txnref } = verified;
+    if (!charge_id || !person_id || !txnref) {
+      return { ok: false, reason: 'Malformed state' };
+    }
+
+    const tenantRow = await this.db.query<{ tenant_id: string }>(
+      `select tenant_id from charges where id = $1`,
+      [charge_id],
+    );
+    if (tenantRow.rows.length === 0) return { ok: false, reason: 'Charge not found' };
+    const tenantId = tenantRow.rows[0]!.tenant_id;
+
+    const ok = input.response_code === '000' || input.response_code === 'success';
+    return this.db.withTenantContext(
+      { tenant_id: tenantId, role: 'resident', person_id },
+      async (c) => {
+        const updated = await c.query<Payment>(
+          `update payments
+              set status = $1,
+                  captured_at = case when $1 = 'captured' then now() else captured_at end,
+                  tranzila_txn_id = coalesce($2, tranzila_txn_id),
+                  last4 = coalesce($3, last4),
+                  brand = coalesce($4, brand),
+                  failure_reason = case when $1 = 'failed' then $5 else failure_reason end,
+                  raw_provider_json = $6
+            where charge_id = $7
+              and paid_by_person_id = $8
+              and status = 'pending'
+            returning *`,
+          [
+            ok ? 'captured' : 'failed',
+            input.txn_id ?? null,
+            input.last4 ?? null,
+            input.brand ?? null,
+            ok ? null : `Tranzila response ${input.response_code}`,
+            JSON.stringify(input.raw),
+            charge_id,
+            person_id,
+          ],
+        );
+        if (updated.rows.length === 0) {
+          return { ok: false, reason: 'No matching pending payment' };
+        }
+
+        // Save the token as a PaymentMethod (for future one-tap pay).
+        if (ok && input.token) {
+          await c.query(
+            `insert into payment_methods
+              (tenant_id, owner_person_id, type, tranzila_token, brand, last4, status, is_default)
+             values ($1, $2, 'card', $3, $4, $5, 'active', false)
+             on conflict do nothing`,
+            [tenantId, person_id, input.token, input.brand ?? 'unknown', input.last4 ?? null],
+          );
+        }
+        return { ok, charge_id, payment_id: updated.rows[0]!.id };
+      },
+    );
+  }
+
+  private async canPayerAccessCharge(tenantId: string, personId: string, charge: Charge): Promise<boolean> {
+    if (charge.billed_to_person_id === personId) return true;
+    return this.db.withTenantContext(
+      { tenant_id: tenantId, role: 'resident', person_id: personId },
+      async (c) => {
+        const { rows } = await c.query(
+          `select 1 from apartment_assignments
+            where apartment_id = $1 and person_id = $2 and status = 'active'
+              and (valid_to is null or valid_to >= current_date)
+            limit 1`,
+          [charge.apartment_id, personId],
+        );
+        return rows.length > 0;
+      },
+    );
+  }
+
+  private async fetchPerson(tenantId: string, id: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query<{ full_name: string; phone_e164: string | null; email: string | null }>(
+        `select full_name, phone_e164, email from people where id = $1`,
+        [id],
+      );
+      return rows[0] ?? null;
     });
   }
 

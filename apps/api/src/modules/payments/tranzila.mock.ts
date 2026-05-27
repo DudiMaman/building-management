@@ -1,5 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TranzilaAdapter, type ChargeTokenInput, type ChargeTokenResult } from './tranzila.adapter';
+import {
+  TranzilaAdapter,
+  type ChargeTokenInput,
+  type ChargeTokenResult,
+  type IframeSession,
+  type IframeSessionInput,
+} from './tranzila.adapter';
 
 /**
  * In-memory Tranzila for local dev & tests.
@@ -37,5 +43,31 @@ export class TranzilaMockAdapter extends TranzilaAdapter {
 
   override verifyWebhookSignature(): boolean {
     return true;
+  }
+
+  /**
+   * Mock iframe URL — points to a tiny local HTML page that simulates the
+   * Tranzila iframe (auto-succeeds after 1s and posts back via the same
+   * postMessage contract). The state is real (HMAC-signed) so callers
+   * can exercise the verifyState path in tests.
+   */
+  override buildIframeSession(input: IframeSessionInput): IframeSession {
+    const state = this.signState({
+      charge_id: input.chargeId,
+      person_id: input.personId,
+      txnref: input.txnref,
+    });
+    const base = process.env.API_PUBLIC_URL ?? 'http://localhost:4000';
+    const params = new URLSearchParams({
+      charge_id: input.chargeId,
+      sum: input.amountIls.toFixed(2),
+      state,
+      txnref: input.txnref,
+    });
+    return {
+      url: `${base}/v1/payments/iframe-mock?${params.toString()}`,
+      expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      state,
+    };
   }
 }

@@ -150,7 +150,14 @@ These are items intentionally stubbed or simplified for the autonomous build:
   `apps/api/assets/fonts/` when present (see README) — otherwise the
   service falls back to Helvetica so PDFs are still produced. Custom RTL
   shaper at `src/modules/pdf/hebrew.ts` (simple BiDi pass, unit-tested).
-- **Tranzila iframe**: `apps/mobile-resident/app/pay.tsx` uses a placeholder URL — wire to real Tranzila iframe with token callback handler.
+- ✅ **Tranzila iframe**: backend now mints HMAC-signed iframe sessions
+  (`POST /v1/payments/iframe-session`) that the mobile WebView renders.
+  Mobile pay.tsx listens for the iframe's postMessage payload (works for
+  both Tranzila production and the local mock at `/v1/payments/iframe-mock`)
+  and finalizes via `POST /v1/payments/iframe-result` — the server
+  verifies the state signature, marks the Payment captured/failed, and
+  saves the returned Tranzila token as a PaymentMethod for one-tap reuse.
+  Tested at the adapter level (signing, tamper rejection, URL shape).
 - **Supabase Auth wiring**: `apps/admin/src/app/login/page.tsx` is a placeholder form. Wire to `@supabase/ssr`.
 - **API client in apps**: admin/mobile apps currently use static data. Add SWR/tRPC client wired to API base URL.
 - **Push notifications setup**: Expo Push token registration on mobile not yet wired (need `expo-notifications`).
