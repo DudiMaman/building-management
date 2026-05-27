@@ -30,14 +30,19 @@ export class ApartmentsController {
     return this.apartments.list(req.claims.tenant_id, buildingId);
   }
 
-  @Get(':id')
-  findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
-    return this.apartments.findOne(req.claims.tenant_id, id);
+  // ---- Literal sub-routes (must come before :id catches) ----
+
+  @Get('rental-contracts')
+  listRentalContracts(@Req() req: AuthenticatedRequest, @Query('apartment_id') apartmentId?: string) {
+    return this.apartments.listRentalContracts(req.claims.tenant_id, apartmentId);
   }
 
-  @Get(':id/assignments')
-  listAssignments(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
-    return this.assignments.listCurrent(req.claims.tenant_id, id);
+  @Post('rental-contracts')
+  createRentalContract(
+    @Req() req: AuthenticatedRequest,
+    @Body(new ZodPipe(CreateRentalContractSchema)) body: any,
+  ) {
+    return this.apartments.createRentalContract(req.claims.tenant_id, body);
   }
 
   @Post('assignments')
@@ -48,11 +53,15 @@ export class ApartmentsController {
     return this.apartments.addAssignment(req.claims.tenant_id, body);
   }
 
-  @Post('rental-contracts')
-  createRentalContract(
-    @Req() req: AuthenticatedRequest,
-    @Body(new ZodPipe(CreateRentalContractSchema)) body: any,
-  ) {
-    return this.apartments.createRentalContract(req.claims.tenant_id, body);
+  // ---- :id routes ----
+
+  @Get(':id')
+  findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.apartments.findOne(req.claims.tenant_id, id);
+  }
+
+  @Get(':id/assignments')
+  listAssignments(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.assignments.listCurrent(req.claims.tenant_id, id);
   }
 }

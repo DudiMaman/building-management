@@ -95,6 +95,32 @@ export class ApartmentsService {
     });
   }
 
+  async listRentalContracts(tenantId: string, apartmentId?: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const params: unknown[] = [];
+      let where = '';
+      if (apartmentId) {
+        params.push(apartmentId);
+        where = `where rc.apartment_id = $${params.length}`;
+      }
+      const { rows } = await c.query(
+        `select rc.*,
+                a.unit_number,
+                owner.full_name as owner_name,
+                renter.full_name as renter_name
+           from rental_contracts rc
+           join apartments a on a.id = rc.apartment_id
+           left join people owner on owner.id = rc.owner_person_id
+           left join people renter on renter.id = rc.renter_person_id
+           ${where}
+          order by rc.start_date desc
+          limit 200`,
+        params,
+      );
+      return rows;
+    });
+  }
+
   async createRentalContract(tenantId: string, input: CreateRentalContract) {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
       const { rows } = await client.query(

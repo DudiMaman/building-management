@@ -4,6 +4,18 @@ This document is updated continuously as development proceeds. It is the source 
 
 > See [`SPEC.md`](./SPEC.md) for the master spec. Section numbers below refer to it.
 
+## Open conversation items
+
+These are decisions or work items waiting on the user — tracked here so
+nothing falls between sessions.
+
+- 👤 **Marketing site feedback**: the user is reviewing the live preview
+  at <https://dudimaman.github.io/building-management/> and will return
+  with a list of fixes. Apply them in a dedicated commit, rebuild, and
+  push to `gh-pages` (auto via the workflow once merged to `main`).
+- 👤 **Merge `claude/great-rubin-CqWBX` → `main`** so the
+  `deploy-marketing.yml` workflow takes over future redeploys.
+
 ## Status legend
 
 - ✅ Done & working
@@ -206,7 +218,17 @@ These are items intentionally stubbed or simplified for the autonomous build:
 - **Subscribe to PR webhooks**: ITA clearance, Tranzila notify, WhatsApp messages — webhook controllers exist but need production HMAC secrets.
 
 ### Medium priority
-- **Admin web pages**: only login + dashboard + buildings + invoices + checks + documents implemented. Need: apartments, people, rental-contracts, tasks, tickets, charges, vendors, bulletin, polls, whatsapp inbox, ai-bot tuning, addons, reports, settings, audit-log.
+- 🟡 **Admin web pages**: shipped this round —
+  apartments, people, rental-contracts, tasks (Kanban), tickets, charges,
+  vendors, bulletin, reports (KPIs + AR aging + big-debtors), audit-log,
+  settings (tabs: company / billing / team / notifications / locale /
+  security — stubs for the last three). New `<DataTable>` + `<StatusPill>`
+  + `<PageHeader>` + `<ComingSoon>` shared components. Sidebar now
+  highlights the active route. WhatsApp inbox, AI bot tuning, polls and
+  notifications pages mounted as ComingSoon placeholders that surface
+  the existing API endpoints so the team knows what's wireable next.
+  Create / edit flows + detail pages (e.g. building/apartment timeline)
+  still TODO.
 - ✅ **Pino logger integration**: wired via `nestjs-pino` in `AppModule`.
   Pretty-prints in dev (via `pino-pretty`), JSON in prod. Redacts
   Authorization headers, cookies, passwords, tokens. Per-request id

@@ -99,3 +99,140 @@ export interface InvoiceRow {
   currency: string;
   pdf_file_id: string | null;
 }
+
+export interface Apartment {
+  id: string;
+  building_id: string;
+  unit_number: string;
+  floor: number | null;
+  size_sqm: string | null;
+  num_rooms: string | null;
+  occupancy_status: 'vacant' | 'owner_occupied' | 'rented' | 'mixed';
+  monthly_dues_amount: string | null;
+}
+
+export interface Person {
+  id: string;
+  full_name: string;
+  phone_e164: string | null;
+  email: string | null;
+  language: string;
+  claim_status: 'pending' | 'approved' | 'rejected';
+  whatsapp_opt_in: boolean;
+}
+
+export interface RentalContract {
+  id: string;
+  apartment_id: string;
+  owner_person_id: string;
+  renter_person_id: string;
+  start_date: string;
+  end_date: string | null;
+  monthly_rent: string | null;
+  vaad_responsibility: 'renter_pays' | 'owner_pays' | 'split';
+  split_renter_pct: string | null;
+  status: 'draft' | 'active' | 'ended' | 'terminated';
+}
+
+export interface Task {
+  id: string;
+  building_id: string;
+  apartment_id: string | null;
+  source: 'planned' | 'ticket' | 'adhoc';
+  title: string;
+  category: string;
+  priority: 'low' | 'med' | 'high' | 'urgent';
+  assigned_worker_id: string | null;
+  scheduled_at: string | null;
+  status: 'todo' | 'in_progress' | 'blocked' | 'done' | 'cancelled';
+  time_spent_minutes: number;
+}
+
+export interface Ticket {
+  id: string;
+  building_id: string;
+  apartment_id: string | null;
+  opened_by_person_id: string | null;
+  intake_channel: string;
+  title: string;
+  category: string;
+  priority: 'low' | 'med' | 'high' | 'urgent';
+  status: string;
+  opened_at: string;
+}
+
+export interface Charge {
+  id: string;
+  building_id: string;
+  apartment_id: string;
+  billed_to_person_id: string | null;
+  description: string | null;
+  amount: string;
+  currency: string;
+  due_date: string;
+  status: string;
+  paid_amount: string;
+  dunning_stage: number;
+}
+
+export interface ChargeSchedule {
+  id: string;
+  building_id: string;
+  apartment_id: string | null;
+  name: string;
+  amount: string;
+  currency: string;
+  cadence: 'one_off' | 'monthly' | 'quarterly' | 'annual';
+  day_of_month: number | null;
+  bill_payer_rule: string;
+  status: 'active' | 'paused' | 'ended';
+}
+
+export interface Vendor {
+  id: string;
+  name: string;
+  contact_name: string | null;
+  phone: string | null;
+  email: string | null;
+  vat_id: string | null;
+  iban: string | null;
+  rating: string | null;
+  status: 'active' | 'inactive' | 'blocked';
+}
+
+export interface BulletinPost {
+  id: string;
+  building_id: string;
+  title: string;
+  body_md: string;
+  pinned: boolean;
+  pinned_until: string | null;
+  expires_at: string | null;
+  status: 'draft' | 'published' | 'archived';
+  published_at: string | null;
+}
+
+export interface AuditEntry {
+  id: string;
+  actor_user_id: string | null;
+  actor_type: string;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  ip: string | null;
+  created_at: string;
+}
+
+export interface ArAging {
+  bucket_0_30: string;
+  bucket_31_60: string;
+  bucket_61_90: string;
+  bucket_90_plus: string;
+}
+
+export interface PerPersonAr {
+  person_id: string;
+  full_name: string;
+  outstanding: string;
+  open_charges: string;
+}

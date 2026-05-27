@@ -44,3 +44,24 @@ export class BillingController {
     return this.billing.runCycle(req.claims.tenant_id, id, due);
   }
 }
+
+/**
+ * Separate controller mounted at /v1/charges — gives the admin a single
+ * place to inspect produced charges across all schedules.
+ */
+@Controller('charges')
+@UseGuards(SupabaseJwtGuard, RolesGuard)
+@Roles('mgmt_admin', 'mgmt_member')
+export class ChargesController {
+  constructor(private readonly billing: BillingService) {}
+
+  @Get()
+  list(
+    @Req() req: AuthenticatedRequest,
+    @Query('status') status?: string,
+    @Query('building_id') buildingId?: string,
+    @Query('person_id') personId?: string,
+  ) {
+    return this.billing.listCharges(req.claims.tenant_id, { status, buildingId, personId });
+  }
+}

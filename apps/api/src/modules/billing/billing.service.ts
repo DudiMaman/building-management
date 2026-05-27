@@ -62,6 +62,34 @@ export class BillingService {
     });
   }
 
+  async listCharges(
+    tenantId: string,
+    filter: { status?: string; buildingId?: string; personId?: string } = {},
+  ) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
+      const where: string[] = [];
+      const params: unknown[] = [];
+      if (filter.status) {
+        params.push(filter.status);
+        where.push(`status = $${params.length}`);
+      }
+      if (filter.buildingId) {
+        params.push(filter.buildingId);
+        where.push(`building_id = $${params.length}`);
+      }
+      if (filter.personId) {
+        params.push(filter.personId);
+        where.push(`billed_to_person_id = $${params.length}`);
+      }
+      const clause = where.length ? `where ${where.join(' and ')}` : '';
+      const { rows } = await client.query(
+        `select * from charges ${clause} order by due_date desc limit 500`,
+        params,
+      );
+      return rows;
+    });
+  }
+
   /**
    * Dry-run a billing cycle for a schedule on a given date.
    * Returns the rows that would be created, with resolved bill payer info,
