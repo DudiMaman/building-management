@@ -1,0 +1,214 @@
+/* v3 — research-backed redesign.
+   Palette: TLV quiet luxury (warm cream + deep navy + brass)
+   Typography: Heebo only (Hebrew research says no serifs in marketing)
+   Mobile-first sizing in clamp(); right-aligned hero (enterprise-adjacent)
+*/
+
+.v3 {
+  /* Type stack — single family, Hebrew-first, no serifs */
+  --font-sans: 'Heebo', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Sans', ui-monospace, monospace;
+
+  /* Surface */
+  --bg: #f5f1ea;        /* warm cream — Pacaso / TLV quiet luxury */
+  --bg-2: #ede5d4;      /* sand, for dividers + secondary surfaces */
+  --bg-3: #e2d5bc;      /* deeper sand */
+  --paper: #fdfbf5;     /* near-white card surface */
+
+  /* Ink */
+  --ink: #1b2a41;       /* Sotheby's Pantone 289 adjacent */
+  --ink-2: #2a3a55;
+  --ink-3: #6e7a8c;     /* muted text */
+  --ink-4: #9aa3b1;
+
+  /* Single accent */
+  --brass: #b08850;     /* sparingly: CTAs, key stats, link underlines */
+  --brass-2: #8b6a3d;   /* hover */
+
+  /* Hairline */
+  --line: rgba(27, 42, 65, 0.10);
+  --line-strong: rgba(27, 42, 65, 0.18);
+
+  /* Status (data display only — never in chrome) */
+  --moss: #4a6b4f;
+  --rust: #b25438;
+
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-feature-settings: 'kern' 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Hebrew NEEDS this line-height; descenders touch otherwise */
+  line-height: 1.6;
+  letter-spacing: 0; /* never negative on Hebrew */
+}
+
+/* Heebo display weights — Hebrew is optically heavier so we don't push
+   sizes as high as Latin. Mobile-first via clamp(). */
+.v3 .display-1 {
+  font-size: clamp(38px, 6.5vw, 68px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+.v3 .display-2 {
+  font-size: clamp(30px, 4.5vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.v3 .display-3 {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+.v3 .h-section {
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Body */
+.v3 .lead {
+  font-size: clamp(17px, 1.4vw, 19px);
+  line-height: 1.6;
+  color: var(--ink-2);
+  font-weight: 400;
+}
+.v3 .card-body {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+.v3 .muted { color: var(--ink-3); }
+
+/* Eyebrow — Hebrew or English caps */
+.v3 .eyebrow-he {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brass);
+  line-height: 1.3;
+}
+.v3 .eyebrow-en {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Tabular nums for stats */
+.v3 .tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Hairline rule helper */
+.v3 .hair { border-color: var(--line); }
+
+/* CTA — brass primary, navy ghost */
+.v3 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  min-height: 48px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 6px;
+  transition: background 200ms;
+}
+.v3 .btn-primary:hover { background: var(--ink-2); }
+
+.v3 .btn-brass {
+  background: var(--brass);
+  color: var(--paper);
+}
+.v3 .btn-brass:hover { background: var(--brass-2); }
+
+.v3 .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  min-height: 48px;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  transition: background 200ms;
+}
+.v3 .btn-ghost:hover { background: var(--bg-2); }
+
+/* Editorial inline link */
+.v3 .link {
+  color: var(--ink);
+  background-image: linear-gradient(var(--brass), var(--brass));
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  text-decoration: none;
+  padding-bottom: 1px;
+}
+.v3 .link:hover {
+  background-size: 100% 2px;
+}
+
+/* Subtle texture for cream sections — adds paper feel without busyness */
+.v3 .paper-texture {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(rgba(27, 42, 65, 0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Mobile-first padding rhythm */
+.v3 .section { padding-top: 64px; padding-bottom: 64px; }
+@media (min-width: 768px) {
+  .v3 .section { padding-top: 96px; padding-bottom: 96px; }
+}
+@media (min-width: 1024px) {
+  .v3 .section { padding-top: 120px; padding-bottom: 120px; }
+}
+
+.v3 .container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+@media (min-width: 768px) {
+  .v3 .container { padding-inline: 32px; }
+}
+@media (min-width: 1024px) {
+  .v3 .container { padding-inline: 48px; }
+}
+
+/* Scroll target offset for sticky header */
+.v3 section[id] {
+  scroll-margin-top: 72px;
+}
+
+/* Bidi isolation helpers — wrap brand names, phone numbers, prices */
+.v3 .ltr { unicode-bidi: isolate; direction: ltr; display: inline-block; }
+
+/* Hide on mobile / show on desktop */
+@media (max-width: 767px) {
+  .v3 .hide-mobile { display: none !important; }
+}
+@media (min-width: 768px) {
+  .v3 .show-mobile { display: none !important; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .v3 *, .v3 *::before, .v3 *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
