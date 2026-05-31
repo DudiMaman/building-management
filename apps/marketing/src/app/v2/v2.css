@@ -1,0 +1,92 @@
+/* v2 design tokens — kept scoped to .v2-scope so they don't bleed
+   into the production /  pages. Real-estate + business CRM palette. */
+
+.v2-scope {
+  /* Type */
+  --font-serif: 'Frank Ruhl Libre', 'Heebo', Georgia, serif;
+  --font-sans: 'Heebo', 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Sans', 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Real-estate / corporate palette */
+  --ink: #0b1623;          /* near-black navy — primary text, brand */
+  --ink-soft: #1b2a3d;
+  --ink-line: #d8d1c4;     /* warm hairline divider */
+  --paper: #fbf8f3;        /* cream background */
+  --paper-2: #f3ece1;      /* warm sand */
+  --paper-3: #e7dccb;
+  --brass: #b08850;        /* gilded accent — sparingly */
+  --brass-soft: #d6b88a;
+  --signal: #ce6a3d;       /* warm red-orange — only for "live" */
+  --moss: #4f6f52;         /* deep green — secondary accent */
+
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-sans);
+  font-feature-settings: 'ss01' on, 'liga' on;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial serif headlines */
+.v2-scope .serif {
+  font-family: var(--font-serif);
+  font-feature-settings: 'liga' on, 'kern' on;
+  letter-spacing: -0.02em;
+}
+
+/* Technical mono-ish labels (numbers, badges) */
+.v2-scope .label {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' on;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+/* Hairline rule for sections */
+.v2-scope .rule {
+  border-color: var(--ink-line);
+}
+
+/* Subtle architectural grid backdrop */
+.v2-scope .blueprint-bg {
+  background-image:
+    linear-gradient(rgba(11, 22, 35, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 22, 35, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Dotted overlay for archival texture */
+.v2-scope .dot-overlay {
+  background-image: radial-gradient(rgba(11, 22, 35, 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Numerals: tabular for stats */
+.v2-scope .tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+/* Underline for editorial inline links */
+.v2-scope a.link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  text-decoration: none;
+  padding-bottom: 1px;
+}
+
+/* Smooth section transitions */
+.v2-scope section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* Hide motion for prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .v2-scope * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
