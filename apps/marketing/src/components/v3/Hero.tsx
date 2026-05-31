@@ -17,21 +17,21 @@ export function Hero() {
               </span>
             </div>
 
-            <h1 className="display-1 mt-6 max-w-[17ch]">
-              ניהול הנדל"ן שלכם.
-              <br />
+            <h1 className="display-1 mt-6 lg:max-w-[18ch]">
+              ניהול הנדל"ן שלכם.{' '}
               <span style={{ color: 'var(--brass)' }}>הכל במקום אחד.</span>
             </h1>
 
-            <p className="lead mt-5 max-w-[42ch]">
-              מערכת תפעול אחת לחברת הניהול, לוועד, לבעלים ולשוכרים — גבייה, אחזקה ותקשורת.
-              בנויה לעולם הנדל"ן הישראלי, מאסיפת ועד ועד חשבונית מס.
+            <p className="lead mt-5 lg:max-w-[42ch]">
+              מערכת תפעול אחת לחברת הניהול, לוועד, לבעלים ולשוכרים — גבייה,
+              אחזקה ותקשורת. בנויה לעולם הנדל"ן הישראלי, מאסיפת ועד ועד חשבונית מס.
             </p>
 
-            {/* CTAs */}
+            {/* CTAs — friction-reducing micro-copy on the primary
+                (DoorLoop "schedule a demo in 36 seconds" pattern) */}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="#cta" className="btn-primary justify-center sm:justify-start">
-                לקבלת הדגמה אישית
+                תאמו הדגמה — 25 דק׳
                 <ArrowLeft className="h-4 w-4" />
               </Link>
               <Link href="/signup" className="btn-ghost justify-center sm:justify-start">
@@ -39,7 +39,6 @@ export function Hero() {
               </Link>
             </div>
 
-            {/* Sub-CTA microcopy — lifted from research */}
             <p className="mt-4 text-[13px] text-[var(--ink-3)]">
               ללא התחייבות · 5 דקות התקנה · ללא כרטיס אשראי בניסיון
             </p>

@@ -26,9 +26,9 @@ export function ProductMockup() {
           style={{ borderColor: 'var(--line)', background: 'var(--bg-2)' }}
         >
           <div className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: '#e0c4a8' }} />
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: '#d4b483' }} />
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: '#b08850' }} />
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'rgba(27,42,65,0.16)' }} />
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'rgba(27,42,65,0.16)' }} />
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'rgba(27,42,65,0.16)' }} />
           </div>
           <div
             className="ms-3 flex-1 truncate rounded-md px-3 py-1 text-[11px] ltr"
