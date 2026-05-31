@@ -95,6 +95,14 @@ export function Cta() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </div>
+
+        {/* Brand-as-verb closer — Bllink-style "X זה Y" Hebrew copy convention */}
+        <p
+          className="mt-12 text-center text-[clamp(22px,3.4vw,34px)] font-bold leading-tight tracking-tight"
+          style={{ color: 'var(--brass)' }}
+        >
+          ניהול הנדל"ן זה אצלנו.
+        </p>
       </div>
     </section>
   );

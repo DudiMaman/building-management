@@ -3,6 +3,7 @@ import { Header } from '@/components/v3/Header';
 import { Hero } from '@/components/v3/Hero';
 import { PressStrip } from '@/components/v3/PressStrip';
 import { Platform } from '@/components/v3/Platform';
+import { Personas } from '@/components/v3/Personas';
 import { HowItWorks } from '@/components/v3/HowItWorks';
 import { Stats } from '@/components/v3/Stats';
 import { Testimonials } from '@/components/v3/Testimonials';
@@ -21,6 +22,7 @@ export default function V3Page() {
         <Hero />
         <PressStrip />
         <Platform />
+        <Personas />
         <HowItWorks />
         <Stats />
         <Testimonials />
