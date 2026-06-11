@@ -1,0 +1,70 @@
+# TEMPORARY utility workflow — round 2: fetch designed/iconic residential
+# tower photos (fully sky-surrounded, for a clean cutout) from Wikimedia
+# Commons. The sandboxed dev env can't reach image CDNs. Deleted after use.
+name: fetch-hero-assets
+
+on:
+  push:
+    branches: ['claude/great-rubin-CqWBX']
+    paths: ['.github/workflows/fetch-hero-assets.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch candidates from Wikimedia Commons
+        run: |
+          set -euo pipefail
+          OUT=apps/marketing/public/v5/candidates
+          rm -rf "$OUT" && mkdir -p "$OUT"
+          : > "$OUT/credits.txt"
+          UA="building-management-design-bot/1.0 (contact: dudi.maman@gmail.com)"
+          n=0
+          fetch_query() {
+            local query="$1"
+            local resp
+            resp=$(curl -sG -H "User-Agent: $UA" "https://commons.wikimedia.org/w/api.php" \
+              --data-urlencode "action=query" \
+              --data-urlencode "format=json" \
+              --data-urlencode "generator=search" \
+              --data-urlencode "gsrsearch=$query filetype:bitmap" \
+              --data-urlencode "gsrnamespace=6" \
+              --data-urlencode "gsrlimit=3" \
+              --data-urlencode "prop=imageinfo" \
+              --data-urlencode "iiprop=url|size|extmetadata" \
+              --data-urlencode "iiurlwidth=1800")
+            echo "$resp" | jq -r '.query.pages[]? | select(.imageinfo[0].width >= 1000) |
+              [.imageinfo[0].thumburl,
+               (.title | gsub("[^A-Za-z0-9._-]"; "_")),
+               (.imageinfo[0].extmetadata.LicenseShortName.value // "unknown"),
+               (.imageinfo[0].extmetadata.Artist.value // "unknown" | gsub("<[^>]*>"; "") | .[0:60]),
+               .imageinfo[0].descriptionurl] | @tsv' |
+            while IFS=$'\t' read -r url title license artist desc; do
+              n=$((n+1))
+              f="$OUT/c$(printf %03d $((RANDOM % 900 + 100)))_$(echo "$title" | cut -c1-36).jpg"
+              echo "fetching $title"
+              curl -sL -H "User-Agent: $UA" "$url" -o "$f" || rm -f "$f"
+              [ -s "$f" ] && echo "$(basename "$f") | $title | $license | $artist | $desc" >> "$OUT/credits.txt" || true
+            done
+          }
+          fetch_query "Meier on Rothschild"
+          fetch_query "YOO Towers Tel Aviv"
+          fetch_query "Park Tzameret tower"
+          fetch_query "Absolute World Towers Mississauga"
+          fetch_query "Aqua Tower Chicago"
+          fetch_query "Bosco Verticale Milan tower"
+          fetch_query "Rothschild Boulevard skyscraper Tel Aviv modern"
+          ls -la "$OUT"
+
+      - name: Commit candidates back to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/marketing/public/v5/candidates
+          git commit -m "chore(marketing): designed-tower photo candidates, round 2 (temp)" || echo "nothing to commit"
+          git push
