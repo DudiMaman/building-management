@@ -27,6 +27,8 @@ import type { Zone } from './LivingBuilding';
  * latter still serves the auto-cycled "hero understudy" experiments.
  */
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 const FRAME_CHROME =
   'absolute inset-0 overflow-hidden rounded-2xl border bg-[var(--paper)] shadow-[0_30px_80px_-30px_rgba(28,25,23,0.35)]';
 
@@ -251,66 +253,18 @@ function MaintenanceFrame({ active }: { active: boolean }) {
 
   return (
     <div className="flex h-full flex-col">
-      <Chrome title="פנייה #482 · נזילה" badge="פתוחה" />
+      <Chrome title="פנייה #482 · ברז דולף" badge="פתוחה" />
       <div className="flex-1 overflow-hidden p-5">
-        {/* Photo of the incident — pure CSS waterstain on a tiled wall */}
-        <div
-          className="relative h-[150px] overflow-hidden rounded-xl"
-          style={{
-            background:
-              'linear-gradient(180deg, #ebe4d6 0%, #e2d8c4 100%)',
-          }}
-        >
-          {/* Tile grout lines */}
-          <span
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                'repeating-linear-gradient(90deg, transparent 0 76px, rgba(120, 100, 70, 0.35) 76px 78px), repeating-linear-gradient(0deg, transparent 0 38px, rgba(120, 100, 70, 0.35) 38px 40px)',
-              opacity: 0.5,
-            }}
-          />
-          {/* Water damage stain */}
-          <span
-            aria-hidden
-            className="absolute"
-            style={{
-              top: '8%',
-              left: '20%',
-              width: '60%',
-              height: '78%',
-              background:
-                'radial-gradient(55% 60% at 30% 40%, rgba(108, 80, 36, 0.65) 0%, rgba(108, 80, 36, 0.42) 32%, rgba(108, 80, 36, 0.18) 58%, transparent 75%)',
-              filter: 'blur(2px)',
-            }}
-          />
-          {/* Wet drip */}
-          <span
-            aria-hidden
-            className="absolute"
-            style={{
-              top: '38%',
-              left: '40%',
-              width: '6px',
-              height: '54%',
-              background: 'linear-gradient(to bottom, rgba(50, 35, 18, 0.55), rgba(50, 35, 18, 0.08))',
-              borderRadius: 6,
-              filter: 'blur(1px)',
-            }}
-          />
-          {/* Highlight */}
-          <span
-            aria-hidden
-            className="absolute"
-            style={{
-              top: '20%',
-              left: '38%',
-              width: '14%',
-              height: '12%',
-              background: 'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.4), transparent 70%)',
-              filter: 'blur(3px)',
-            }}
+        {/* Incident photo — real dripping-faucet close-up (Wikimedia
+            Commons, Dschwen, CC BY-SA 2.5), warm-graded to the site. */}
+        <div className="relative h-[170px] overflow-hidden rounded-xl">
+          <img
+            src={`${BASE}/v5/leak.jpg`}
+            alt=""
+            width={1280}
+            height={610}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ filter: 'sepia(0.12) saturate(0.95)', transform: active ? 'scale(1)' : 'scale(1.06)', transition: 'transform 1200ms cubic-bezier(0.16, 1, 0.3, 1) 150ms' }}
           />
           <div className="absolute inset-x-3 bottom-3 flex items-center gap-2">
             <span
@@ -330,7 +284,7 @@ function MaintenanceFrame({ active }: { active: boolean }) {
 
         <div className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
           <Field label="כתובת" value={'רוטשילד 4, ת"א · קומה 3'} icon={MapPin} />
-          <Field label="סוג" value="נזילה · חדר אמבטיה" />
+          <Field label="סוג" value="ברז דולף · מטבח" />
           <Field label="הועבר ל" value="יוסי כהן · אינסטלטור" />
           <Field
             label="SLA"
@@ -422,6 +376,8 @@ function CommsFrame({ active }: { active: boolean }) {
     { from: 'bot' as const, text: 'היי דנה 👋 היתרה שלך לדירה 14 ברוטשילד 4: ₪0 — הוראת הקבע נגבתה אמש.', t: '09:21', ai: true },
     { from: 'them' as const, text: 'ויש לי בעיה עם הדוד', t: '09:22' },
     { from: 'bot' as const, text: 'מבין. פותח פנייה לאינסטלטור הבניין ושומר תמונה בכרטיס הדירה. מעדכן אותך כשמשהו זז.', t: '09:22', ai: true, escalate: true },
+    { from: 'them' as const, text: 'מתי בערך יגיעו? אני בבית עד 16:00', t: '09:23' },
+    { from: 'bot' as const, text: 'יוסי האינסטלטור משובץ להיום בין 14:00–16:00 🔧 תקבלי הודעה כשהוא בדרך אלייך. צריך עוד משהו?', t: '09:23', ai: true },
   ];
 
   return (
@@ -623,70 +579,40 @@ function AccessFrame({ active }: { active: boolean }) {
     <div className="flex h-full flex-col">
       <Chrome title="חניון א׳ · שער ראשי" badge="LIVE" />
       <div className="flex-1 overflow-hidden p-5">
-        {/* Gate viz */}
-        <div
-          className="relative h-[160px] overflow-hidden rounded-xl"
-          style={{
-            background:
-              'linear-gradient(180deg, #1f2937 0%, #111827 100%)',
-          }}
-        >
-          {/* Asphalt lines */}
-          <div
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-[58%]"
+        {/* Gate photo — real boom barrier (Wikimedia Commons, Epolk,
+            CC BY-SA 4.0), warm-graded to the site palette. */}
+        <div className="relative h-[170px] overflow-hidden rounded-xl">
+          <img
+            src={`${BASE}/v5/gate.jpg`}
+            alt=""
+            width={1280}
+            height={492}
+            className="absolute inset-0 h-full w-full object-cover"
             style={{
-              background:
-                'repeating-linear-gradient(90deg, #1f2937 0 24px, transparent 24px 32px, #1f2937 32px 56px)',
-              opacity: 0.5,
+              filter: 'sepia(0.18) saturate(0.92) contrast(1.02)',
+              transform: active ? 'scale(1)' : 'scale(1.06)',
+              transition: 'transform 1200ms cubic-bezier(0.16, 1, 0.3, 1) 150ms',
             }}
           />
-          {/* Gate posts */}
-          <span className="absolute bottom-0 left-[18%] h-[80%] w-[8px] rounded-t-sm bg-[#4b5563]" />
-          <span className="absolute bottom-0 right-[18%] h-[80%] w-[8px] rounded-t-sm bg-[#4b5563]" />
-          {/* The boom barrier — rotates open when active */}
+          {/* Soft bottom gradient for the camera badge */}
           <span
-            className="absolute bottom-[64%] left-[18%] block h-[6px] origin-left rounded-full"
-            style={{
-              width: '64%',
-              background: 'repeating-linear-gradient(90deg, #fbbf24 0 14px, #1f2937 14px 22px)',
-              transform: active ? 'rotate(-62deg)' : 'rotate(0deg)',
-              transition: 'transform 720ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms',
-            }}
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-12"
+            style={{ background: 'linear-gradient(to top, rgba(20,16,12,0.45), transparent)' }}
           />
-          {/* Car silhouette */}
-          <div
-            className="absolute bottom-2"
-            style={{
-              left: '32%',
-              width: '36%',
-              opacity: active ? 1 : 0,
-              transform: active ? 'translateX(0)' : 'translateX(-18px)',
-              transition: 'opacity 460ms ease 900ms, transform 720ms cubic-bezier(0.16, 1, 0.3, 1) 900ms',
-            }}
+          <span
+            className="absolute bottom-2.5 right-3 rounded-md px-2 py-1 text-[10px] font-bold text-white"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}
           >
-            <svg viewBox="0 0 200 80" className="h-auto w-full">
-              <path
-                d="M10 60 Q10 50 22 48 L52 30 Q60 22 76 22 H132 Q146 22 154 30 L188 50 Q198 50 198 60 V70 H10 Z"
-                fill="#e7e5e4"
-                stroke="#a8a29e"
-                strokeWidth="1.2"
-              />
-              <rect x="58" y="32" width="36" height="14" rx="2" fill="#1c1917" opacity="0.85" />
-              <rect x="98" y="32" width="44" height="14" rx="2" fill="#1c1917" opacity="0.85" />
-              <circle cx="48" cy="68" r="8" fill="#1c1917" />
-              <circle cx="48" cy="68" r="3" fill="#57534e" />
-              <circle cx="158" cy="68" r="8" fill="#1c1917" />
-              <circle cx="158" cy="68" r="3" fill="#57534e" />
-            </svg>
-          </div>
+            מצלמת שער · LIVE
+          </span>
           {/* Status pill */}
           <div
-            className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold"
-            style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#86efac' }}
+            className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold"
+            style={{ background: 'rgba(20,16,12,0.6)', color: '#86efac', backdropFilter: 'blur(6px)' }}
           >
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#86efac]" />
-            פתוח · 09:40
+            נפתח · 09:40
           </div>
         </div>
 
