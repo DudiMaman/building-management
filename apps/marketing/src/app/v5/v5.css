@@ -1,0 +1,267 @@
+/* v5 — "The Living Building". Evolution of the v3/v4 token system:
+   same warm cream + ink + WCAG brass identity, pushed toward more
+   whitespace, stronger display contrast, and scroll-native motion.
+   All motion respects prefers-reduced-motion. */
+
+.v5 {
+  --font-sans: 'Heebo', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Surfaces */
+  --bg: #faf9f6;
+  --bg-2: #f3efe7;
+  --bg-3: #e9e2d4;
+  --paper: #ffffff;
+
+  /* Ink */
+  --ink: #1c1917;
+  --ink-2: #2c2825;
+  --ink-3: #57534e;
+  --ink-4: #a8a29e;
+
+  /* Brass — WCAG-checked accent (#a16207 = 3:1 on cream, large text/graphics) */
+  --brass: #a16207;
+  --brass-2: #854d0e;
+  --brass-3: #fcd34d; /* on dark surfaces only */
+  --brass-soft: rgba(161, 98, 7, 0.1);
+
+  /* Status — used sparingly inside the building viz */
+  --moss: #4d7c0f;
+  --rust: #b91c1c;
+
+  --line: rgba(28, 25, 23, 0.08);
+  --line-2: rgba(28, 25, 23, 0.16);
+
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+/* ---------- Type scale (mobile-first clamp) ---------- */
+.v5 .display-1 {
+  font-size: clamp(38px, 7vw, 76px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.005em;
+}
+.v5 .display-2 {
+  font-size: clamp(28px, 4.4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.v5 .display-3 {
+  font-size: clamp(21px, 2.6vw, 30px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.v5 .lead {
+  font-size: clamp(16px, 1.4vw, 19px);
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--ink-3);
+}
+
+.v5 .eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--brass);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.v5 .eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--brass);
+}
+.v5 .eyebrow-en {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.v5 .tnum { font-variant-numeric: tabular-nums lining-nums; }
+.v5 .ltr { unicode-bidi: isolate; direction: ltr; display: inline-block; }
+
+/* ---------- Buttons ---------- */
+.v5 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  min-height: 48px;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: 10px;
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 180ms, background-color 180ms, border-color 180ms;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.v5 .btn:active { transform: scale(0.97); }
+
+.v5 .btn-ink { background: var(--ink); color: var(--paper); }
+.v5 .btn-ink:hover {
+  background: var(--ink-2);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -10px rgba(28, 25, 23, 0.35);
+}
+.v5 .btn-brass {
+  background: var(--brass);
+  color: var(--paper);
+  box-shadow: 0 4px 14px -6px rgba(161, 98, 7, 0.5);
+}
+.v5 .btn-brass:hover { background: var(--brass-2); transform: translateY(-1px); }
+.v5 .btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+}
+.v5 .btn-ghost:hover { background: var(--bg-2); border-color: var(--ink-4); }
+
+.v5 .link {
+  color: var(--ink);
+  background-image: linear-gradient(var(--brass), var(--brass));
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  padding-bottom: 1px;
+  transition: background-size 200ms;
+}
+.v5 .link:hover { background-size: 100% 2px; }
+
+/* Keyboard focus — visible ring everywhere */
+.v5 :is(a, button, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Layout ---------- */
+.v5 .container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+@media (min-width: 768px) { .v5 .container { padding-inline: 40px; } }
+@media (min-width: 1024px) { .v5 .container { padding-inline: 56px; } }
+
+.v5 .section { padding-block: 72px; }
+@media (min-width: 768px) { .v5 .section { padding-block: 112px; } }
+@media (min-width: 1024px) { .v5 .section { padding-block: 144px; } }
+
+.v5 section[id] { scroll-margin-top: 84px; }
+
+.v5 .card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.v5 .glass {
+  background: rgba(250, 249, 246, 0.82);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+}
+
+/* ---------- Scroll reveal (driven by Reveal.tsx via IntersectionObserver) ---------- */
+.v5 .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.v5 .reveal.in { opacity: 1; transform: none; }
+
+/* ---------- Platform story (scrollytelling) ---------- */
+.v5 .story-step-inner { transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+@media (min-width: 1024px) {
+  .v5 .story-step[data-active='false'] .story-step-inner { opacity: 0.35; }
+  /* Flat list on desktop — .v5 .card would otherwise win over Tailwind's
+     lg:bg-transparent (higher specificity), keeping the white card look. */
+  .v5 .story-step {
+    background: transparent;
+    border-radius: 0;
+    border-inline: 0;
+    border-top: 0;
+  }
+}
+
+/* Hero display — sized so the two headline lines never re-wrap */
+.v5 .hero-h1 {
+  font-size: clamp(33px, 4.3vw, 58px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.005em;
+}
+
+/* ---------- Live ops ticker ---------- */
+.v5 .ticker-mask {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to left, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to left, transparent, black 8%, black 92%, transparent);
+}
+@keyframes v5-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); } /* RTL: strip flows rightward */
+}
+.v5 .ticker-strip {
+  display: flex;
+  width: max-content;
+  animation: v5-ticker 42s linear infinite;
+}
+.v5 .ticker-mask:hover .ticker-strip { animation-play-state: paused; }
+
+/* ---------- Living Building viz ---------- */
+.v5 .lb-zone {
+  opacity: 0;
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.v5 .lb-zone[data-active='true'] { opacity: 1; }
+
+.v5 .lb-chip {
+  transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  transform: translateY(6px);
+}
+.v5 .lb-chip[data-active='true'] { opacity: 1; transform: translateY(0); }
+
+@keyframes v5-wave {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.v5 .lb-wave {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: v5-wave 2.2s ease-out infinite;
+}
+.v5 .lb-wave-2 { animation-delay: 0.7s; }
+.v5 .lb-wave-3 { animation-delay: 1.4s; }
+
+@keyframes v5-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.v5 .lb-blink { animation: v5-blink 1.8s ease-in-out infinite; }
+
+/* ---------- Reduced motion: show everything, stop everything ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .v5 .reveal { opacity: 1; transform: none; transition: none; }
+  .v5 .ticker-strip { animation: none; }
+  .v5 .lb-wave, .v5 .lb-blink { animation: none; }
+  .v5 .btn:active { transform: none; }
+  .v5 * { transition-duration: 0.01ms !important; }
+}

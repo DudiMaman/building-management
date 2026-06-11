@@ -1,0 +1,115 @@
+'use client';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
+
+/**
+ * v5 header — deliberately simpler than v4: no mega menu. Brand, four
+ * anchors, login, one CTA. Keeps the proven scroll-aware glass compression.
+ */
+
+const NAV = [
+  ['הפלטפורמה', '#story'],
+  ['למי זה מתאים', '#who'],
+  ['תמחור', '#pricing'],
+  ['שאלות', '#faq'],
+] as const;
+
+export function Header() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <header
+      className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'glass border-b' : 'bg-transparent'}`}
+      style={{ borderColor: scrolled ? 'var(--line)' : 'transparent' }}
+    >
+      <div
+        className={`container flex items-center justify-between transition-all duration-300 ${
+          scrolled ? 'h-[58px]' : 'h-[74px]'
+        }`}
+      >
+        <Link href="/v5" className="flex items-center gap-2.5">
+          <BrandMark />
+          <span className="text-[17px] font-extrabold tracking-tight">ניהול מבנים</span>
+        </Link>
+
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="ניווט ראשי">
+          {NAV.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              className="rounded-md px-3.5 py-2 text-[15px] font-medium text-[var(--ink-2)] transition-colors hover:bg-[var(--bg-2)] hover:text-[var(--ink)]"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="hidden items-center gap-3 lg:flex">
+          <Link href="/login" className="text-[14px] font-medium text-[var(--ink-2)] hover:text-[var(--ink)]">
+            התחברות
+          </Link>
+          <Link href="#cta" className="btn btn-ink" style={{ minHeight: 42, padding: '10px 20px', fontSize: 14 }}>
+            תאמו הדגמה
+          </Link>
+        </div>
+
+        <button
+          aria-label={open ? 'סגירת תפריט' : 'פתיחת תפריט'}
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[var(--ink)] hover:bg-[var(--bg-2)] lg:hidden"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
+
+      {open && (
+        <div className="glass absolute inset-x-0 top-full border-b lg:hidden" style={{ borderColor: 'var(--line)' }}>
+          <div className="container py-2">
+            <nav className="flex flex-col" aria-label="ניווט נייד">
+              {NAV.map(([label, href]) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="border-b py-4 text-[16px] font-medium text-[var(--ink)]"
+                  style={{ borderColor: 'var(--line)' }}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
+            <div className="mb-4 mt-4 flex flex-col gap-2">
+              <Link href="/login" className="btn btn-ghost w-full" onClick={() => setOpen(false)}>
+                התחברות
+              </Link>
+              <Link href="#cta" className="btn btn-ink w-full" onClick={() => setOpen(false)}>
+                תאמו הדגמה
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function BrandMark() {
+  return (
+    <span className="relative grid h-9 w-9 place-items-center rounded-[9px]" style={{ background: 'var(--ink)' }}>
+      <span style={{ color: 'var(--paper)' }} className="text-[15px] font-extrabold">
+        נ
+      </span>
+      <span className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--brass-3)' }} />
+    </span>
+  );
+}

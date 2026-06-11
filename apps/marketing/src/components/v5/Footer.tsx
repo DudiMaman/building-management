@@ -1,0 +1,83 @@
+import Link from 'next/link';
+
+/** Slim footer — brand + contact, two nav columns, legal line. */
+export function Footer() {
+  return (
+    <footer style={{ background: 'var(--bg-2)' }}>
+      <div className="container py-12 md:py-16">
+        <div className="grid gap-10 border-b pb-10 md:grid-cols-12" style={{ borderColor: 'var(--line-2)' }}>
+          <div className="md:col-span-6">
+            <Link href="/v5" className="flex items-center gap-2.5">
+              <span className="relative grid h-9 w-9 place-items-center rounded-[9px]" style={{ background: 'var(--ink)' }}>
+                <span style={{ color: 'var(--paper)' }} className="text-[15px] font-extrabold">
+                  נ
+                </span>
+                <span className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--brass-3)' }} />
+              </span>
+              <span className="text-[17px] font-extrabold tracking-tight">ניהול מבנים</span>
+            </Link>
+            <p className="mt-4 max-w-sm text-[14px] leading-[1.65] text-[var(--ink-3)]">
+              מערכת התפעול לחברות ניהול נדל"ן ולוועדי בית בישראל.
+            </p>
+            <div className="mt-5 space-y-1.5 text-[14px]">
+              <a className="link block w-fit" href="mailto:hello@building-management.co.il">
+                hello@building-management.co.il
+              </a>
+              <a className="block w-fit text-[var(--ink-2)]" href="tel:+97231234567">
+                <span className="ltr">03-1234567</span>
+              </a>
+            </div>
+          </div>
+
+          <FooterCol
+            title="פלטפורמה"
+            links={[
+              ['הפלטפורמה', '#story'],
+              ['תמחור', '#pricing'],
+              ['שאלות נפוצות', '#faq'],
+              ['התחברות', '/login'],
+            ]}
+          />
+          <FooterCol
+            title="חברה"
+            links={[
+              ['אודות', '/about'],
+              ['בלוג', '/blog'],
+              ['יצירת קשר', '#cta'],
+            ]}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3 pt-6 text-[12px] text-[var(--ink-3)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <span>© {new Date().getFullYear()} ניהול מבנים בע"מ.</span>
+            <Link href="/legal/terms" className="hover:text-[var(--ink)]">
+              תנאי שימוש
+            </Link>
+            <Link href="/legal/privacy" className="hover:text-[var(--ink)]">
+              פרטיות
+            </Link>
+          </div>
+          <span className="eyebrow-en">EU-WEST · GDPR · IL PRIVACY 1981</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <div className="md:col-span-3">
+      <div className="text-[12px] font-extrabold uppercase tracking-wider text-[var(--ink)]">{title}</div>
+      <ul className="mt-3 space-y-2.5 text-[14px] text-[var(--ink-2)]">
+        {links.map(([label, href]) => (
+          <li key={label}>
+            <Link href={href} className="hover:text-[var(--ink)]">
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
