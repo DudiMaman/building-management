@@ -110,8 +110,6 @@ export function LivingTower({ className = '' }: { className?: string }) {
     return () => clearInterval(t);
   }, []);
 
-  const ev = EVENTS[idx];
-
   return (
     <div
       className={`relative ${className}`}
@@ -121,20 +119,8 @@ export function LivingTower({ className = '' }: { className?: string }) {
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
     >
-      {/* Brass glow — replaces the photographed sun; shines through the
-          transparent canyon between the cutout towers. Breathes slowly. */}
-      <div
-        aria-hidden
-        className={`absolute ${animate ? 'lt-glow' : ''}`}
-        style={{
-          inset: '-12%',
-          background:
-            'radial-gradient(48% 40% at 58% 20%, rgba(252,211,77,0.6) 0%, rgba(212,160,23,0.24) 40%, rgba(161,98,7,0.08) 62%, transparent 78%)',
-        }}
-      />
-
       {/* Cutout towers — sky removed, edges dissolve into the page.
-          The site background IS the sky. */}
+          The site background IS the sky: no glow, no halo, no frame. */}
       <img
         src={`${BASE}/v5/towers-cutout.webp`}
         alt=""
@@ -220,30 +206,6 @@ export function LivingTower({ className = '' }: { className?: string }) {
         );
       })}
 
-      {/* Bottom feed bar */}
-      <div
-        className="absolute inset-x-[8%] bottom-[6%] overflow-hidden rounded-xl"
-        style={{
-          background: 'rgba(20,16,12,0.6)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-        }}
-        aria-hidden
-      >
-        <div key={ev.id} className={animate ? 'lt-feed-in' : ''}>
-          <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ev.color }} />
-            <span className="truncate text-[12px] font-bold text-white">{ev.title}</span>
-            <span className="hidden truncate text-[11px] sm:block" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {ev.sub}
-            </span>
-            <span className="tnum ms-auto shrink-0 text-[10px]" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-mono)' }}>
-              {ev.time}
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

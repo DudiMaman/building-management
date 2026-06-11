@@ -61,7 +61,7 @@ export function Hero() {
             <Reveal delay={200}>
               {/* Frameless bleed: edge-to-edge on mobile, oversized toward
                   the viewport edge on desktop (hero section clips overflow). */}
-              <div className="-mx-5 sm:mx-0 lg:-me-[18%] lg:-mt-6 lg:w-[118%]">
+              <div className="-mx-8 sm:mx-0 lg:-me-[28%] lg:-mt-10 lg:w-[134%]">
                 <LivingTower />
               </div>
               <p className="mt-1 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
