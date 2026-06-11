@@ -65,7 +65,7 @@ export function Hero() {
                 <LivingTower />
               </div>
               <p className="mt-1 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
-                צילום:{' '}
+                צילום (מעובד):{' '}
                 <a
                   href="https://commons.wikimedia.org/wiki/File:Tel_Aviv_Towers_-_03.jpg"
                   target="_blank"

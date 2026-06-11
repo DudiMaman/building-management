@@ -257,31 +257,23 @@
 }
 .v5 .lb-blink { animation: v5-blink 1.8s ease-in-out infinite; }
 
-/* ---------- Living Tower (photo hero) ---------- */
-/* Frameless blend: edges feather out so the photo sits in the page
-   like ink on paper — sky stays visible, no card boundary. */
-.v5 .lt-mask {
-  -webkit-mask-image: radial-gradient(
-    120% 104% at 50% 42%,
-    #000 50%,
-    rgba(0, 0, 0, 0.85) 66%,
-    rgba(0, 0, 0, 0.35) 84%,
-    transparent 98%
-  );
-  mask-image: radial-gradient(
-    120% 104% at 50% 42%,
-    #000 50%,
-    rgba(0, 0, 0, 0.85) 66%,
-    rgba(0, 0, 0, 0.35) 84%,
-    transparent 98%
-  );
+/* ---------- Living Tower (cutout hero) ---------- */
+/* The towers are a transparent-background cutout: the page background
+   IS the sky. A brass glow breathes behind them through the canyon. */
+@keyframes v5-glow {
+  from { opacity: 0.7; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1.05); }
 }
+.v5 .lt-glow { animation: v5-glow 7s ease-in-out infinite alternate; }
 
-@keyframes v5-kenburns {
+@keyframes v5-grow {
   from { transform: scale(1); }
-  to { transform: scale(1.08); }
+  to { transform: scale(1.03); }
 }
-.v5 .lt-kenburns { animation: v5-kenburns 16s ease-in-out infinite alternate; }
+.v5 .lt-grow {
+  transform-origin: 50% 100%;
+  animation: v5-grow 18s ease-in-out infinite alternate;
+}
 
 @keyframes v5-ping {
   0% { transform: scale(0.35); opacity: 0.9; }
@@ -324,7 +316,7 @@
   .v5 .reveal { opacity: 1; transform: none; transition: none; }
   .v5 .ticker-strip { animation: none; }
   .v5 .lb-wave, .v5 .lb-blink { animation: none; }
-  .v5 .lt-kenburns, .v5 .lt-ping, .v5 .lt-chip[data-active='true'], .v5 .lt-feed-in { animation: none; }
+  .v5 .lt-glow, .v5 .lt-grow, .v5 .lt-ping, .v5 .lt-chip[data-active='true'], .v5 .lt-feed-in { animation: none; }
   .v5 .btn:active { transform: none; }
   .v5 * { transition-duration: 0.01ms !important; }
 }

@@ -121,27 +121,28 @@ export function LivingTower({ className = '' }: { className?: string }) {
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
     >
-      {/* Photo layer — frameless: soft-masked edges melt into the page
-          background, a light warm grade ties the photo to the site palette.
-          Overlays (chips, pings, feed) sit outside the mask so they stay crisp. */}
-      <div className="lt-mask absolute inset-0 overflow-hidden">
-        <img
-          src={`${BASE}/v5/tower.jpg`}
-          alt=""
-          width={1200}
-          height={1500}
-          className={`absolute inset-0 h-full w-full object-cover ${animate ? 'lt-kenburns' : ''}`}
-          style={{ filter: 'sepia(0.1) saturate(0.95) contrast(1.02)' }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(20,16,12,0.45) 0%, rgba(20,16,12,0.05) 26%, rgba(20,16,12,0) 45%)',
-          }}
-        />
-      </div>
+      {/* Brass glow — replaces the photographed sun; shines through the
+          transparent canyon between the cutout towers. Breathes slowly. */}
+      <div
+        aria-hidden
+        className={`absolute ${animate ? 'lt-glow' : ''}`}
+        style={{
+          inset: '-12%',
+          background:
+            'radial-gradient(46% 38% at 50% 28%, rgba(252,211,77,0.6) 0%, rgba(212,160,23,0.24) 40%, rgba(161,98,7,0.08) 62%, transparent 78%)',
+        }}
+      />
+
+      {/* Cutout towers — sky removed, edges dissolve into the page.
+          The site background IS the sky. */}
+      <img
+        src={`${BASE}/v5/towers-cutout.webp`}
+        alt=""
+        width={1200}
+        height={1500}
+        className={`absolute inset-0 h-full w-full object-cover ${animate ? 'lt-grow' : ''}`}
+        style={{ filter: 'sepia(0.08) saturate(0.96) contrast(1.02)' }}
+      />
 
       {/* Address plate */}
       <div
