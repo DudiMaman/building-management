@@ -67,12 +67,12 @@ export function Hero() {
               <p className="mt-1 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
                 צילום (מעובד):{' '}
                 <a
-                  href="https://commons.wikimedia.org/wiki/File:Tel_Aviv_Towers_-_03.jpg"
+                  href="https://commons.wikimedia.org/wiki/File:Yoo_Towers_03.jpg"
                   target="_blank"
                   rel="noreferrer"
                   className="underline-offset-2 hover:underline"
                 >
-                  Wikimedia Commons
+                  Ynhockey · Wikimedia Commons
                 </a>{' '}
                 · CC BY-SA 4.0
               </p>

@@ -37,8 +37,8 @@ const EVENTS: TowerEvent[] = [
     title: 'ועד יוני נגבה · ₪420',
     sub: 'דירה 12 · הוראת קבע',
     time: '09:02',
-    ping: { top: '30%', left: '72%' },
-    chip: { top: '24%', left: '26%' },
+    ping: { top: '22%', left: '66%' },
+    chip: { top: '13%', left: '10%' },
   },
   {
     id: 'maintenance',
@@ -47,8 +47,8 @@ const EVENTS: TowerEvent[] = [
     title: 'נזילה בקומה 3 — שויכה',
     sub: 'צילום ומיקום אצל העובד',
     time: '09:14',
-    ping: { top: '50%', left: '16%' },
-    chip: { top: '46%', left: '22%' },
+    ping: { top: '48%', left: '20%' },
+    chip: { top: '40%', left: '30%' },
   },
   {
     id: 'bot',
@@ -57,8 +57,8 @@ const EVENTS: TowerEvent[] = [
     title: 'הבוט ענה לדייר',
     sub: 'WhatsApp · 8 שניות',
     time: '09:21',
-    ping: { top: '20%', left: '10%' },
-    chip: { top: '15%', left: '16%' },
+    ping: { top: '36%', left: '76%' },
+    chip: { top: '30%', left: '40%' },
   },
   {
     id: 'vote',
@@ -67,8 +67,8 @@ const EVENTS: TowerEvent[] = [
     title: 'הצבעה אושרה',
     sub: 'שיפוץ לובי · 12 חתימות',
     time: '09:36',
-    ping: { top: '13%', left: '86%' },
-    chip: { top: '9%', left: '36%' },
+    ping: { top: '9%', left: '54%' },
+    chip: { top: '4%', left: '8%' },
   },
   {
     id: 'access',
@@ -77,8 +77,8 @@ const EVENTS: TowerEvent[] = [
     title: 'שער החניה נפתח',
     sub: 'דייר מזוהה · חניון א׳',
     time: '09:40',
-    ping: { top: '82%', left: '78%' },
-    chip: { top: '76%', left: '24%' },
+    ping: { top: '80%', left: '62%' },
+    chip: { top: '70%', left: '14%' },
   },
   {
     id: 'invoice',
@@ -87,8 +87,8 @@ const EVENTS: TowerEvent[] = [
     title: 'קבלה #2031 נשלחה',
     sub: 'תואמת רשות המסים',
     time: '09:47',
-    ping: { top: '70%', left: '22%' },
-    chip: { top: '62%', left: '34%' },
+    ping: { top: '62%', left: '30%' },
+    chip: { top: '55%', left: '42%' },
   },
 ];
 
@@ -129,7 +129,7 @@ export function LivingTower({ className = '' }: { className?: string }) {
         style={{
           inset: '-12%',
           background:
-            'radial-gradient(46% 38% at 50% 28%, rgba(252,211,77,0.6) 0%, rgba(212,160,23,0.24) 40%, rgba(161,98,7,0.08) 62%, transparent 78%)',
+            'radial-gradient(48% 40% at 58% 20%, rgba(252,211,77,0.6) 0%, rgba(212,160,23,0.24) 40%, rgba(161,98,7,0.08) 62%, transparent 78%)',
         }}
       />
 
@@ -148,8 +148,8 @@ export function LivingTower({ className = '' }: { className?: string }) {
       <div
         className="absolute flex items-center gap-2 rounded-md px-2.5 py-1.5"
         style={{
-          top: '5%',
-          left: '7%',
+          top: '4%',
+          left: '5%',
           background: 'rgba(20,16,12,0.55)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
@@ -158,7 +158,7 @@ export function LivingTower({ className = '' }: { className?: string }) {
         aria-hidden
       >
         <span className="lb-blink inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#86efac' }} />
-        <span className="text-[11px] font-bold text-white">רוטשילד 4, תל אביב</span>
+        <span className="text-[11px] font-bold text-white">פארק צמרת, תל אביב</span>
         <span className="eyebrow-en !text-[9px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
           LIVE
         </span>
