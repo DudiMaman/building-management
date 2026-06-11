@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { CreditCard, Wrench, MessageCircle, FileCheck, DoorOpen } from 'lucide-react';
-import { LivingBuilding, ZONE_LABELS, type Zone } from './LivingBuilding';
+import { ZONE_LABELS, type Zone } from './LivingBuilding';
+import { ProductFrames } from './ProductFrames';
 
 /**
  * Scroll-driven product story — v5's structural innovation. The same
@@ -105,6 +106,7 @@ export function PlatformStory() {
               return (
                 <div
                   key={s.zone}
+                  id={`story-${s.zone}`}
                   data-idx={i}
                   data-active={isActive}
                   ref={(el) => {
@@ -148,24 +150,31 @@ export function PlatformStory() {
             })}
           </div>
 
-          {/* Sticky building (desktop only) */}
+          {/* Sticky product frames (desktop only) — realistic CRM screens
+              that crossfade as the reader moves through the chapters. */}
           <div className="hidden lg:col-span-6 lg:block">
             <div className="sticky top-24">
-              <div
-                className="rounded-2xl border p-6"
-                style={{
-                  borderColor: 'var(--line)',
-                  background: 'var(--bg-2)',
-                  backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(28,25,23,0.025) 1px, transparent 0)',
-                  backgroundSize: '22px 22px',
-                }}
-              >
-                <LivingBuilding mode="controlled" zone={STEPS[active].zone} />
-              </div>
-              <div className="mt-4 flex items-center justify-between px-1">
-                <span className="text-[13px] font-bold" style={{ color: 'var(--ink)' }}>
-                  {ZONE_LABELS[STEPS[active].zone]} · {STEPS[active].title}
-                </span>
+              <ProductFrames zone={STEPS[active].zone} />
+              {/* Chapter dots — quick navigation + clear "where am I" cue */}
+              <div className="mt-5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {STEPS.map((s, i) => (
+                    <a
+                      key={s.zone}
+                      href={`#story-${s.zone}`}
+                      aria-label={`קפיצה לפרק ${ZONE_LABELS[s.zone]}`}
+                      className="group flex items-center gap-2"
+                    >
+                      <span
+                        className="block h-1.5 rounded-full transition-all duration-500"
+                        style={{
+                          width: active === i ? 36 : 8,
+                          background: active === i ? 'var(--ink)' : 'var(--ink-5)',
+                        }}
+                      />
+                    </a>
+                  ))}
+                </div>
                 <span className="eyebrow-en tnum">
                   {String(active + 1).padStart(2, '0')} / {String(STEPS.length).padStart(2, '0')}
                 </span>
