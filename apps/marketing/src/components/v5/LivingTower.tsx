@@ -114,38 +114,41 @@ export function LivingTower({ className = '' }: { className?: string }) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl ${className}`}
-      style={{ aspectRatio: '4 / 5', boxShadow: '0 30px 70px -30px rgba(28,25,23,0.45)' }}
+      className={`relative ${className}`}
+      style={{ aspectRatio: '4 / 5' }}
       role="img"
       aria-label="מגדל מגורים מודרני שמוצגים עליו אירועי מערכת חיים: גבייה, תקלות, בוט, הצבעות, שערים וחשבוניות"
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
     >
-      {/* Photo + slow Ken Burns */}
-      <img
-        src={`${BASE}/v5/tower.jpg`}
-        alt=""
-        width={1200}
-        height={1500}
-        className={`absolute inset-0 h-full w-full object-cover ${animate ? 'lt-kenburns' : ''}`}
-      />
-
-      {/* Readability gradients */}
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(to top, rgba(20,16,12,0.72) 0%, rgba(20,16,12,0.12) 30%, rgba(20,16,12,0) 55%), linear-gradient(to bottom, rgba(20,16,12,0.35) 0%, rgba(20,16,12,0) 22%)',
-        }}
-      />
+      {/* Photo layer — frameless: soft-masked edges melt into the page
+          background, a light warm grade ties the photo to the site palette.
+          Overlays (chips, pings, feed) sit outside the mask so they stay crisp. */}
+      <div className="lt-mask absolute inset-0 overflow-hidden">
+        <img
+          src={`${BASE}/v5/tower.jpg`}
+          alt=""
+          width={1200}
+          height={1500}
+          className={`absolute inset-0 h-full w-full object-cover ${animate ? 'lt-kenburns' : ''}`}
+          style={{ filter: 'sepia(0.1) saturate(0.95) contrast(1.02)' }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(20,16,12,0.45) 0%, rgba(20,16,12,0.05) 26%, rgba(20,16,12,0) 45%)',
+          }}
+        />
+      </div>
 
       {/* Address plate */}
       <div
         className="absolute flex items-center gap-2 rounded-md px-2.5 py-1.5"
         style={{
-          top: 14,
-          left: 14,
+          top: '5%',
+          left: '7%',
           background: 'rgba(20,16,12,0.55)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
@@ -218,7 +221,7 @@ export function LivingTower({ className = '' }: { className?: string }) {
 
       {/* Bottom feed bar */}
       <div
-        className="absolute inset-x-3 bottom-3 overflow-hidden rounded-xl"
+        className="absolute inset-x-[8%] bottom-[6%] overflow-hidden rounded-xl"
         style={{
           background: 'rgba(20,16,12,0.6)',
           backdropFilter: 'blur(10px)',

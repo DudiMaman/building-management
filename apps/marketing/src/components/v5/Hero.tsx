@@ -59,8 +59,12 @@ export function Hero() {
 
           <div className="lg:col-span-5">
             <Reveal delay={200}>
-              <LivingTower />
-              <p className="mt-2.5 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
+              {/* Frameless bleed: edge-to-edge on mobile, oversized toward
+                  the viewport edge on desktop (hero section clips overflow). */}
+              <div className="-mx-5 sm:mx-0 lg:-me-[18%] lg:-mt-6 lg:w-[118%]">
+                <LivingTower />
+              </div>
+              <p className="mt-1 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
                 צילום:{' '}
                 <a
                   href="https://commons.wikimedia.org/wiki/File:Tel_Aviv_Towers_-_03.jpg"

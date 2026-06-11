@@ -258,6 +258,25 @@
 .v5 .lb-blink { animation: v5-blink 1.8s ease-in-out infinite; }
 
 /* ---------- Living Tower (photo hero) ---------- */
+/* Frameless blend: edges feather out so the photo sits in the page
+   like ink on paper — sky stays visible, no card boundary. */
+.v5 .lt-mask {
+  -webkit-mask-image: radial-gradient(
+    120% 104% at 50% 42%,
+    #000 50%,
+    rgba(0, 0, 0, 0.85) 66%,
+    rgba(0, 0, 0, 0.35) 84%,
+    transparent 98%
+  );
+  mask-image: radial-gradient(
+    120% 104% at 50% 42%,
+    #000 50%,
+    rgba(0, 0, 0, 0.85) 66%,
+    rgba(0, 0, 0, 0.35) 84%,
+    transparent 98%
+  );
+}
+
 @keyframes v5-kenburns {
   from { transform: scale(1); }
   to { transform: scale(1.08); }
