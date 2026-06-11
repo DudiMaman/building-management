@@ -48,7 +48,40 @@ export function Footer() {
           />
         </div>
 
-        <div className="flex flex-col gap-3 pt-6 text-[12px] text-[var(--ink-3)] sm:flex-row sm:items-center sm:justify-between">
+        {/* Photo attributions — required by CC BY-SA. Hosted here instead
+            of next to each image to keep the visual sections clean. */}
+        <p className="pt-6 text-[11px] leading-[1.7] text-[var(--ink-3)]">
+          קרדיטים לצילומים (מעובדים):{' '}
+          <a
+            href="https://commons.wikimedia.org/wiki/File:Yoo_Towers_03.jpg"
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            Ynhockey
+          </a>
+          {' · '}
+          <a
+            href="https://commons.wikimedia.org/wiki/File:Dripping_faucet_1.jpg"
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            Dschwen
+          </a>
+          {' · '}
+          <a
+            href="https://commons.wikimedia.org/wiki/File:Closed_parking_lot_boom_barrier.jpg"
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            Epolk
+          </a>
+          {' '}· Wikimedia Commons · CC BY-SA
+        </p>
+
+        <div className="flex flex-col gap-3 pt-4 text-[12px] text-[var(--ink-3)] sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <span>© {new Date().getFullYear()} ניהול מבנים בע"מ.</span>
             <Link href="/legal/terms" className="hover:text-[var(--ink)]">

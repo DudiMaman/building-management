@@ -182,18 +182,6 @@ export function PlatformStory() {
             </div>
           </div>
         </div>
-
-        <p className="mt-12 text-center text-[10px] lg:text-end" style={{ color: 'var(--ink-4)' }}>
-          צילומים במסכים (מעובדים):{' '}
-          <a href="https://commons.wikimedia.org/wiki/File:Dripping_faucet_1.jpg" target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
-            Dschwen
-          </a>
-          {' · '}
-          <a href="https://commons.wikimedia.org/wiki/File:Closed_parking_lot_boom_barrier.jpg" target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
-            Epolk
-          </a>
-          {' '}· Wikimedia Commons · CC BY-SA
-        </p>
       </div>
     </section>
   );

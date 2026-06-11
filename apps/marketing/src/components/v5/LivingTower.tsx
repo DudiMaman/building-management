@@ -130,26 +130,6 @@ export function LivingTower({ className = '' }: { className?: string }) {
         style={{ filter: 'sepia(0.08) saturate(0.96) contrast(1.02)' }}
       />
 
-      {/* Address plate */}
-      <div
-        className="absolute flex items-center gap-2 rounded-md px-2.5 py-1.5"
-        style={{
-          top: '4%',
-          left: '5%',
-          background: 'rgba(20,16,12,0.55)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255,255,255,0.14)',
-        }}
-        aria-hidden
-      >
-        <span className="lb-blink inline-block h-1.5 w-1.5 rounded-full" style={{ background: '#86efac' }} />
-        <span className="text-[11px] font-bold text-white">פארק צמרת, תל אביב</span>
-        <span className="eyebrow-en !text-[9px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
-          LIVE
-        </span>
-      </div>
-
       {/* Radar pings — one per event, only the active one runs */}
       {EVENTS.map((e, i) => (
         <div

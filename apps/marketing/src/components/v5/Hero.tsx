@@ -60,22 +60,12 @@ export function Hero() {
           <div className="lg:col-span-5">
             <Reveal delay={200}>
               {/* Frameless bleed: edge-to-edge on mobile, oversized toward
-                  the viewport edge on desktop (hero section clips overflow). */}
+                  the viewport edge on desktop (hero section clips overflow).
+                  Photo attribution lives in the site footer to keep the
+                  hero clean while honoring the CC BY-SA license. */}
               <div className="-mx-8 sm:mx-0 lg:-me-[28%] lg:-mt-10 lg:w-[134%]">
                 <LivingTower />
               </div>
-              <p className="mt-1 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
-                צילום (מעובד):{' '}
-                <a
-                  href="https://commons.wikimedia.org/wiki/File:Yoo_Towers_03.jpg"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline-offset-2 hover:underline"
-                >
-                  Ynhockey · Wikimedia Commons
-                </a>{' '}
-                · CC BY-SA 4.0
-              </p>
             </Reveal>
           </div>
         </div>
