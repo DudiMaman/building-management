@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { LivingBuilding } from './LivingBuilding';
+import { LivingTower } from './LivingTower';
 import { Reveal } from './Reveal';
 
 /**
  * v5 hero — one idea, one CTA pair. Copy on the right (RTL start),
- * the Living Building on the left. No persona tabs, no rotating mockups:
- * the building IS the pitch.
+ * the Living Tower photo on the left. No persona tabs, no rotating
+ * mockups: the live building IS the pitch.
  */
 export function Hero() {
   return (
@@ -59,18 +59,19 @@ export function Hero() {
 
           <div className="lg:col-span-5">
             <Reveal delay={200}>
-              <div
-                className="rounded-2xl border p-4 sm:p-6"
-                style={{
-                  borderColor: 'var(--line)',
-                  background: 'var(--bg-2)',
-                  backgroundImage:
-                    'radial-gradient(circle at 1px 1px, rgba(28,25,23,0.025) 1px, transparent 0)',
-                  backgroundSize: '22px 22px',
-                }}
-              >
-                <LivingBuilding mode="auto" />
-              </div>
+              <LivingTower />
+              <p className="mt-2.5 text-center text-[10px]" style={{ color: 'var(--ink-4)' }}>
+                צילום:{' '}
+                <a
+                  href="https://commons.wikimedia.org/wiki/File:Tel_Aviv_Towers_-_03.jpg"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline-offset-2 hover:underline"
+                >
+                  Wikimedia Commons
+                </a>{' '}
+                · CC BY-SA 4.0
+              </p>
             </Reveal>
           </div>
         </div>

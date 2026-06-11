@@ -257,11 +257,55 @@
 }
 .v5 .lb-blink { animation: v5-blink 1.8s ease-in-out infinite; }
 
+/* ---------- Living Tower (photo hero) ---------- */
+@keyframes v5-kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+.v5 .lt-kenburns { animation: v5-kenburns 16s ease-in-out infinite alternate; }
+
+@keyframes v5-ping {
+  0% { transform: scale(0.35); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.v5 .lt-ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid;
+  animation: v5-ping 1.3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.v5 .lt-ping-2 { animation-delay: 0.45s; }
+
+@keyframes v5-chip-in {
+  0% { opacity: 0; transform: translateY(16px) scale(0.9) rotate(-1.2deg); }
+  62% { opacity: 1; transform: translateY(-3px) scale(1.03) rotate(0.4deg); }
+  100% { opacity: 1; transform: none; }
+}
+.v5 .lt-chip {
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 170ms ease-in, transform 170ms ease-in;
+  pointer-events: none;
+}
+.v5 .lt-chip[data-active='true'] {
+  opacity: 1;
+  transform: none;
+  animation: v5-chip-in 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes v5-feed-in {
+  from { transform: translateY(110%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.v5 .lt-feed-in { animation: v5-feed-in 340ms cubic-bezier(0.16, 1, 0.3, 1); }
+
 /* ---------- Reduced motion: show everything, stop everything ---------- */
 @media (prefers-reduced-motion: reduce) {
   .v5 .reveal { opacity: 1; transform: none; transition: none; }
   .v5 .ticker-strip { animation: none; }
   .v5 .lb-wave, .v5 .lb-blink { animation: none; }
+  .v5 .lt-kenburns, .v5 .lt-ping, .v5 .lt-chip[data-active='true'], .v5 .lt-feed-in { animation: none; }
   .v5 .btn:active { transform: none; }
   .v5 * { transition-duration: 0.01ms !important; }
 }
