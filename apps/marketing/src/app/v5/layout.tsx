@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './v5.css';
 
 export const metadata: Metadata = {
-  title: 'ניהול מבנים — v5',
+  title: 'Pulse — מערכת התפעול לנדל"ן מנוהל',
   description:
     'כל מה שקורה בבניין — במסך אחד, בזמן אמת. גבייה, אחזקה, מסמכים ותקשורת לחברות ניהול וועדי בית.',
   robots: { index: false, follow: false },

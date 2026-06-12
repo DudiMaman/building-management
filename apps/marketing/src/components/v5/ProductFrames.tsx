@@ -87,8 +87,8 @@ function Chrome({ title, badge }: { title: string; badge?: string }) {
     >
       <div className="flex items-center gap-2">
         <span className="grid h-7 w-7 place-items-center rounded-md" style={{ background: 'var(--ink)' }}>
-          <span className="text-[11px] font-extrabold" style={{ color: 'var(--brass-3)' }}>
-            נ
+          <span className="ltr text-[12px] font-extrabold" style={{ color: 'var(--brass-3)' }}>
+            P
           </span>
         </span>
         <span className="text-[13px] font-bold text-[var(--ink)]">{title}</span>

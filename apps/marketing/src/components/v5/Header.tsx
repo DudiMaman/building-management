@@ -38,7 +38,7 @@ export function Header() {
       >
         <Link href="/v5" className="flex items-center gap-2.5">
           <BrandMark />
-          <span className="text-[17px] font-extrabold tracking-tight">ניהול מבנים</span>
+          <span className="text-[18px] font-extrabold tracking-tight ltr">Pulse</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="ניווט ראשי">
@@ -106,8 +106,8 @@ export function Header() {
 function BrandMark() {
   return (
     <span className="relative grid h-9 w-9 place-items-center rounded-[9px]" style={{ background: 'var(--ink)' }}>
-      <span style={{ color: 'var(--paper)' }} className="text-[15px] font-extrabold">
-        נ
+      <span style={{ color: 'var(--paper)' }} className="ltr text-[16px] font-extrabold">
+        P
       </span>
       <span className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--brass-3)' }} />
     </span>

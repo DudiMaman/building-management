@@ -9,19 +9,19 @@ export function Footer() {
           <div className="md:col-span-6">
             <Link href="/v5" className="flex items-center gap-2.5">
               <span className="relative grid h-9 w-9 place-items-center rounded-[9px]" style={{ background: 'var(--ink)' }}>
-                <span style={{ color: 'var(--paper)' }} className="text-[15px] font-extrabold">
-                  נ
+                <span style={{ color: 'var(--paper)' }} className="ltr text-[16px] font-extrabold">
+                  P
                 </span>
                 <span className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--brass-3)' }} />
               </span>
-              <span className="text-[17px] font-extrabold tracking-tight">ניהול מבנים</span>
+              <span className="ltr text-[18px] font-extrabold tracking-tight">Pulse</span>
             </Link>
             <p className="mt-4 max-w-sm text-[14px] leading-[1.65] text-[var(--ink-3)]">
               מערכת התפעול לחברות ניהול נדל"ן ולוועדי בית בישראל.
             </p>
             <div className="mt-5 space-y-1.5 text-[14px]">
-              <a className="link block w-fit" href="mailto:hello@building-management.co.il">
-                hello@building-management.co.il
+              <a className="link block w-fit" href="mailto:hello@pulse.co.il">
+                hello@pulse.co.il
               </a>
               <a className="block w-fit text-[var(--ink-2)]" href="tel:+97231234567">
                 <span className="ltr">03-1234567</span>
@@ -83,7 +83,7 @@ export function Footer() {
 
         <div className="flex flex-col gap-3 pt-4 text-[12px] text-[var(--ink-3)] sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            <span>© {new Date().getFullYear()} ניהול מבנים בע"מ.</span>
+            <span>© {new Date().getFullYear()} Pulse בע"מ.</span>
             <Link href="/legal/terms" className="hover:text-[var(--ink)]">
               תנאי שימוש
             </Link>
