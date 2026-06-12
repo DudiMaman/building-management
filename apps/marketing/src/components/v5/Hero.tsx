@@ -11,8 +11,12 @@ import { Reveal } from './Reveal';
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="container pb-14 pt-10 md:pb-20 md:pt-16 lg:pb-24 lg:pt-20">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+      <div className="container pb-14 pt-10 md:pb-20 md:pt-12 lg:pb-24 lg:pt-14">
+        {/* lg:items-start so the right text column rises to the row top
+            instead of getting vertically centered against the tall tower
+            (the wasted whitespace the user flagged). The tower keeps its
+            current geometry — only the text moves up. */}
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-10">
           <div className="lg:col-span-7">
             <Reveal>
               <div
