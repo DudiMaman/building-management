@@ -1,14 +1,24 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { CreditCard, Wrench, MessageCircle, FileCheck, DoorOpen, Receipt } from 'lucide-react';
+import {
+  Banknote,
+  Bell,
+  Calendar,
+  CreditCard,
+  DoorOpen,
+  FileCheck,
+  MessageCircle,
+  Receipt,
+  UserPlus,
+  Wrench,
+} from 'lucide-react';
 
 /**
  * Living Tower — the v5 hero visual, photo edition. A real photograph of a
  * designed residential tower with the live event system layered on top:
- * radar pings at the event location, spring-in glass chips, and a bottom
- * feed bar. Cycles faster than the old schematic (2.7s) and covers the
- * whole capability surface (billing, maintenance, bot, votes, access,
- * invoicing). Pauses on hover; goes fully static under reduced motion.
+ * radar pings at the event location and spring-in glass chips. Ten events
+ * cycle at a brisk 1.35s beat covering the whole capability surface.
+ * Pauses on hover; goes fully static under reduced motion.
  *
  * The schematic LivingBuilding still serves the scroll-driven platform
  * story below — photo for emotion, diagram for explanation.
@@ -90,9 +100,49 @@ const EVENTS: TowerEvent[] = [
     ping: { top: '62%', left: '30%' },
     chip: { top: '55%', left: '42%' },
   },
+  {
+    id: 'lease',
+    icon: UserPlus,
+    color: '#86efac',
+    title: 'שוכר חדש נקלט',
+    sub: 'דירה 8 · חוזה דיגיטלי',
+    time: '09:52',
+    ping: { top: '28%', left: '46%' },
+    chip: { top: '21%', left: '4%' },
+  },
+  {
+    id: 'reminder',
+    icon: Bell,
+    color: 'var(--brass-3)',
+    title: 'תזכורת נשלחה · 3 מאחרים',
+    sub: 'SMS + WhatsApp',
+    time: '09:58',
+    ping: { top: '44%', left: '60%' },
+    chip: { top: '37%', left: '14%' },
+  },
+  {
+    id: 'check',
+    icon: Banknote,
+    color: '#86efac',
+    title: 'צ׳ק נפרע · ₪1,850',
+    sub: 'ספק גינון · מס"ב',
+    time: '10:04',
+    ping: { top: '56%', left: '74%' },
+    chip: { top: '49%', left: '32%' },
+  },
+  {
+    id: 'service',
+    icon: Calendar,
+    color: '#93c5fd',
+    title: 'טכנאי מעלית הוזמן',
+    sub: 'ביקורת תקופתית · יום ג׳',
+    time: '10:11',
+    ping: { top: '70%', left: '14%' },
+    chip: { top: '63%', left: '24%' },
+  },
 ];
 
-const CYCLE_MS = 2700;
+const CYCLE_MS = 1350;
 
 export function LivingTower({ className = '' }: { className?: string }) {
   const [idx, setIdx] = useState(0);

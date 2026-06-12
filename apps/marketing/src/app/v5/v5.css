@@ -290,13 +290,13 @@
 .v5 .lt-chip {
   opacity: 0;
   transform: translateY(8px) scale(0.95);
-  transition: opacity 170ms ease-in, transform 170ms ease-in;
+  transition: opacity 120ms ease-in, transform 120ms ease-in;
   pointer-events: none;
 }
 .v5 .lt-chip[data-active='true'] {
   opacity: 1;
   transform: none;
-  animation: v5-chip-in 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: v5-chip-in 340ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes v5-feed-in {
