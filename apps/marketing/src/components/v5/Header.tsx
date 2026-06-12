@@ -34,21 +34,23 @@ export function Header() {
     >
       <div
         className={`container flex items-center justify-between transition-all duration-300 ${
-          scrolled ? 'h-[68px]' : 'h-[88px]'
+          scrolled ? 'h-[76px] lg:h-[108px]' : 'h-[84px] lg:h-[140px]'
         }`}
       >
         <Link href="/v5" aria-label="Pulse — דף הבית" className="flex shrink-0 items-center">
           {/* Combined logo, inline so the Inter wordmark always loads.
-              Brand keeps its navy + teal identity on the warm cream page.
-              The 3.6:1 aspect ratio gets explicit width because the flex
-              parent doesn't reserve space for SVG intrinsic sizing. */}
-          <Logo
-            className="block transition-all duration-300"
-            style={{
-              height: scrolled ? 44 : 58,
-              width: (scrolled ? 44 : 58) * (290 / 100),
-            }}
-          />
+              Aspect ratio 290:100 (= 2.9:1). Doubled vs the previous
+              header logo on desktop; scaled down on mobile so the
+              wordmark doesn't run off the viewport. */}
+          <div
+            className={`block transition-all duration-300 ${
+              scrolled
+                ? 'h-[56px] w-[162px] lg:h-[88px] lg:w-[255px]'
+                : 'h-[64px] w-[186px] lg:h-[116px] lg:w-[336px]'
+            }`}
+          >
+            <Logo className="h-full w-full" />
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="ניווט ראשי">
