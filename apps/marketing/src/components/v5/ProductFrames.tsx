@@ -86,11 +86,14 @@ function Chrome({ title, badge }: { title: string; badge?: string }) {
       style={{ borderColor: 'var(--line)', background: 'var(--bg)' }}
     >
       <div className="flex items-center gap-2">
-        <span className="grid h-7 w-7 place-items-center rounded-md" style={{ background: 'var(--ink)' }}>
-          <span className="ltr text-[12px] font-extrabold" style={{ color: 'var(--brass-3)' }}>
-            P
-          </span>
-        </span>
+        <img
+          src={`${BASE}/v5/pulse-mark.svg`}
+          alt=""
+          width={28}
+          height={28}
+          className="h-7 w-7 shrink-0"
+          aria-hidden
+        />
         <span className="text-[13px] font-bold text-[var(--ink)]">{title}</span>
         {badge && (
           <span

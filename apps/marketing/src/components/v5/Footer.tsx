@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 /** Slim footer — brand + contact, two nav columns, legal line. */
 export function Footer() {
   return (
@@ -7,14 +9,8 @@ export function Footer() {
       <div className="container py-12 md:py-16">
         <div className="grid gap-10 border-b pb-10 md:grid-cols-12" style={{ borderColor: 'var(--line-2)' }}>
           <div className="md:col-span-6">
-            <Link href="/v5" className="flex items-center gap-2.5">
-              <span className="relative grid h-9 w-9 place-items-center rounded-[9px]" style={{ background: 'var(--ink)' }}>
-                <span style={{ color: 'var(--paper)' }} className="ltr text-[16px] font-extrabold">
-                  P
-                </span>
-                <span className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--brass-3)' }} />
-              </span>
-              <span className="ltr text-[18px] font-extrabold tracking-tight">Pulse</span>
+            <Link href="/v5" aria-label="Pulse — דף הבית" className="inline-flex">
+              <img src={`${BASE}/v5/pulse-logo.svg`} alt="Pulse" width={144} height={48} className="h-10 w-auto" />
             </Link>
             <p className="mt-4 max-w-sm text-[14px] leading-[1.65] text-[var(--ink-3)]">
               מערכת התפעול לחברות ניהול נדל"ן ולוועדי בית בישראל.

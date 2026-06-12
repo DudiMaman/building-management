@@ -25,6 +25,10 @@
   --brass-3: #fcd34d; /* on dark surfaces only */
   --brass-soft: rgba(161, 98, 7, 0.1);
 
+  /* Brand — Pulse identity colors (used by the logo + brand accents) */
+  --brand-navy: #1e3a5f;
+  --brand-teal: #2dd4bf;
+
   /* Status — used sparingly inside the building viz */
   --moss: #4d7c0f;
   --rust: #b91c1c;

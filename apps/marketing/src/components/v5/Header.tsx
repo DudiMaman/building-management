@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 /**
  * v5 header — deliberately simpler than v4: no mega menu. Brand, four
  * anchors, login, one CTA. Keeps the proven scroll-aware glass compression.
@@ -36,9 +38,17 @@ export function Header() {
           scrolled ? 'h-[58px]' : 'h-[74px]'
         }`}
       >
-        <Link href="/v5" className="flex items-center gap-2.5">
-          <BrandMark />
-          <span className="text-[18px] font-extrabold tracking-tight ltr">Pulse</span>
+        <Link href="/v5" aria-label="Pulse — דף הבית" className="flex items-center">
+          {/* Combined logo (mark + Pulse wordmark) — keeps brand colors
+              (navy + cyan) intact even on the warm cream background. */}
+          <img
+            src={`${BASE}/v5/pulse-logo.svg`}
+            alt="Pulse"
+            width={144}
+            height={48}
+            className="h-9 w-auto transition-all duration-300 lg:h-10"
+            style={{ height: scrolled ? 32 : undefined }}
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="ניווט ראשי">
@@ -103,13 +113,3 @@ export function Header() {
   );
 }
 
-function BrandMark() {
-  return (
-    <span className="relative grid h-9 w-9 place-items-center rounded-[9px]" style={{ background: 'var(--ink)' }}>
-      <span style={{ color: 'var(--paper)' }} className="ltr text-[16px] font-extrabold">
-        P
-      </span>
-      <span className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--brass-3)' }} />
-    </span>
-  );
-}
