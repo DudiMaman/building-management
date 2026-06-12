@@ -1,56 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Pulse mark">
-  <!-- Buildings — three skyscrapers, dark navy -->
-  <g fill="#1e3a5f">
-    <!-- Left building (mid height) -->
-    <path d="M22 32 L22 92 L40 92 L40 32 Z" />
-    <!-- Center building (tallest, peaked top) -->
-    <path d="M44 14 L54 4 L64 14 L64 92 L44 92 Z" />
-    <!-- Right tall building -->
-    <path d="M68 24 L68 92 L84 92 L84 24 Z" />
-    <!-- Far right short building -->
-    <path d="M88 44 L88 92 L100 92 L100 44 Z" />
-    <!-- Base shelf -->
-    <path d="M14 92 L106 92 L100 102 L20 102 Z" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110" role="img" aria-label="Pulse">
+  <g fill="none" stroke="#1e3a5f" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M34 22 L34 86 L66 86 L66 22 Z" stroke-width="3" />
+    <line x1="50" y1="22" x2="50" y2="8" stroke-width="2" />
+    <line x1="34" y1="42" x2="66" y2="42" stroke-width="1.6" />
+    <line x1="34" y1="62" x2="66" y2="62" stroke-width="1.6" />
+    <line x1="50" y1="24" x2="50" y2="86" stroke-width="1.4" />
   </g>
-  <!-- White window strips -->
-  <g stroke="#ffffff" stroke-width="1.8" stroke-linecap="round">
-    <!-- Left building -->
-    <line x1="26" y1="40" x2="36" y2="40" />
-    <line x1="26" y1="48" x2="36" y2="48" />
-    <line x1="26" y1="56" x2="36" y2="56" />
-    <line x1="26" y1="64" x2="36" y2="64" />
-    <line x1="26" y1="72" x2="36" y2="72" />
-    <line x1="26" y1="80" x2="36" y2="80" />
-    <!-- Center building -->
-    <line x1="48" y1="22" x2="60" y2="22" />
-    <line x1="48" y1="30" x2="60" y2="30" />
-    <line x1="48" y1="38" x2="60" y2="38" />
-    <line x1="48" y1="46" x2="60" y2="46" />
-    <line x1="48" y1="54" x2="60" y2="54" />
-    <line x1="48" y1="62" x2="60" y2="62" />
-    <line x1="48" y1="70" x2="60" y2="70" />
-    <line x1="48" y1="78" x2="60" y2="78" />
-    <!-- Right tall building -->
-    <line x1="71" y1="32" x2="81" y2="32" />
-    <line x1="71" y1="40" x2="81" y2="40" />
-    <line x1="71" y1="48" x2="81" y2="48" />
-    <line x1="71" y1="56" x2="81" y2="56" />
-    <line x1="71" y1="64" x2="81" y2="64" />
-    <line x1="71" y1="72" x2="81" y2="72" />
-    <line x1="71" y1="80" x2="81" y2="80" />
-    <!-- Far right short -->
-    <line x1="90" y1="52" x2="98" y2="52" />
-    <line x1="90" y1="60" x2="98" y2="60" />
-    <line x1="90" y1="68" x2="98" y2="68" />
-    <line x1="90" y1="76" x2="98" y2="76" />
-    <line x1="90" y1="84" x2="98" y2="84" />
-  </g>
-  <!-- Pulse ECG line — teal, runs across the base through the buildings -->
   <path
-    d="M4 90 L34 90 L42 78 L50 100 L58 66 L66 96 L74 86 L116 86"
+    d="M2 92 L26 92 L32 92 L38 84 L44 104 L52 72 L60 102 L66 84 L72 92 L98 92"
     fill="none"
     stroke="#2dd4bf"
-    stroke-width="4"
+    stroke-width="3.4"
     stroke-linecap="round"
     stroke-linejoin="round"
   />

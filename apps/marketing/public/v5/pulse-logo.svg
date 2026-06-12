@@ -1,58 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" role="img" aria-label="Pulse — מערכת התפעול לנדל&quot;ן מנוהל">
-  <!-- Mark (icon) -->
-  <g transform="translate(0,0)">
-    <g fill="#1e3a5f">
-      <path d="M22 32 L22 92 L40 92 L40 32 Z" />
-      <path d="M44 14 L54 4 L64 14 L64 92 L44 92 Z" />
-      <path d="M68 24 L68 92 L84 92 L84 24 Z" />
-      <path d="M88 44 L88 92 L100 92 L100 44 Z" />
-      <path d="M14 92 L106 92 L100 102 L20 102 Z" />
-    </g>
-    <g stroke="#ffffff" stroke-width="1.8" stroke-linecap="round">
-      <line x1="26" y1="40" x2="36" y2="40" />
-      <line x1="26" y1="48" x2="36" y2="48" />
-      <line x1="26" y1="56" x2="36" y2="56" />
-      <line x1="26" y1="64" x2="36" y2="64" />
-      <line x1="26" y1="72" x2="36" y2="72" />
-      <line x1="26" y1="80" x2="36" y2="80" />
-      <line x1="48" y1="22" x2="60" y2="22" />
-      <line x1="48" y1="30" x2="60" y2="30" />
-      <line x1="48" y1="38" x2="60" y2="38" />
-      <line x1="48" y1="46" x2="60" y2="46" />
-      <line x1="48" y1="54" x2="60" y2="54" />
-      <line x1="48" y1="62" x2="60" y2="62" />
-      <line x1="48" y1="70" x2="60" y2="70" />
-      <line x1="48" y1="78" x2="60" y2="78" />
-      <line x1="71" y1="32" x2="81" y2="32" />
-      <line x1="71" y1="40" x2="81" y2="40" />
-      <line x1="71" y1="48" x2="81" y2="48" />
-      <line x1="71" y1="56" x2="81" y2="56" />
-      <line x1="71" y1="64" x2="81" y2="64" />
-      <line x1="71" y1="72" x2="81" y2="72" />
-      <line x1="71" y1="80" x2="81" y2="80" />
-      <line x1="90" y1="52" x2="98" y2="52" />
-      <line x1="90" y1="60" x2="98" y2="60" />
-      <line x1="90" y1="68" x2="98" y2="68" />
-      <line x1="90" y1="76" x2="98" y2="76" />
-      <line x1="90" y1="84" x2="98" y2="84" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" role="img" aria-label="Pulse">
+  <g transform="translate(0, 8) scale(0.7)">
+    <g fill="none" stroke="#1e3a5f" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M34 22 L34 86 L66 86 L66 22 Z" stroke-width="3" />
+      <line x1="50" y1="22" x2="50" y2="8" stroke-width="2" />
+      <line x1="34" y1="42" x2="66" y2="42" stroke-width="1.6" />
+      <line x1="34" y1="62" x2="66" y2="62" stroke-width="1.6" />
+      <line x1="50" y1="24" x2="50" y2="86" stroke-width="1.4" />
     </g>
     <path
-      d="M4 90 L34 90 L42 78 L50 100 L58 66 L66 96 L74 86 L116 86"
+      d="M2 92 L26 92 L32 92 L38 84 L44 104 L52 72 L60 102 L66 84 L72 92 L98 92"
       fill="none"
       stroke="#2dd4bf"
-      stroke-width="4"
+      stroke-width="3.4"
       stroke-linecap="round"
       stroke-linejoin="round"
     />
   </g>
-  <!-- Wordmark -->
   <text
-    x="132"
-    y="80"
-    font-family="Inter, -apple-system, system-ui, sans-serif"
-    font-size="68"
+    x="84"
+    y="78"
+    font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif"
+    font-size="84"
     font-weight="600"
     fill="#1e3a5f"
-    letter-spacing="-1.5"
+    letter-spacing="-2.5"
   >Pulse</text>
 </svg>

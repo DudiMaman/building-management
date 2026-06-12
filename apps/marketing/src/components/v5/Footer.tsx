@@ -1,6 +1,5 @@
 import Link from 'next/link';
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+import { Logo } from './Logo';
 
 /** Slim footer — brand + contact, two nav columns, legal line. */
 export function Footer() {
@@ -10,7 +9,7 @@ export function Footer() {
         <div className="grid gap-10 border-b pb-10 md:grid-cols-12" style={{ borderColor: 'var(--line-2)' }}>
           <div className="md:col-span-6">
             <Link href="/v5" aria-label="Pulse — דף הבית" className="inline-flex">
-              <img src={`${BASE}/v5/pulse-logo.svg`} alt="Pulse" width={144} height={48} className="h-10 w-auto" />
+              <Logo className="block" style={{ height: 36, width: 130 }} />
             </Link>
             <p className="mt-4 max-w-sm text-[14px] leading-[1.65] text-[var(--ink-3)]">
               מערכת התפעול לחברות ניהול נדל"ן ולוועדי בית בישראל.

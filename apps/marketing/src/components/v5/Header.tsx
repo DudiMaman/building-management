@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+import { Logo } from './Logo';
 
 /**
  * v5 header — deliberately simpler than v4: no mega menu. Brand, four
@@ -38,16 +37,14 @@ export function Header() {
           scrolled ? 'h-[58px]' : 'h-[74px]'
         }`}
       >
-        <Link href="/v5" aria-label="Pulse — דף הבית" className="flex items-center">
-          {/* Combined logo (mark + Pulse wordmark) — keeps brand colors
-              (navy + cyan) intact even on the warm cream background. */}
-          <img
-            src={`${BASE}/v5/pulse-logo.svg`}
-            alt="Pulse"
-            width={144}
-            height={48}
-            className="h-9 w-auto transition-all duration-300 lg:h-10"
-            style={{ height: scrolled ? 32 : undefined }}
+        <Link href="/v5" aria-label="Pulse — דף הבית" className="flex shrink-0 items-center">
+          {/* Combined logo, inline so the Inter wordmark always loads.
+              Brand keeps its navy + teal identity on the warm cream page.
+              The 3.6:1 aspect ratio gets explicit width because the flex
+              parent doesn't reserve space for SVG intrinsic sizing. */}
+          <Logo
+            className="block transition-all duration-300"
+            style={{ height: scrolled ? 28 : 36, width: (scrolled ? 28 : 36) * 3.6 }}
           />
         </Link>
 
