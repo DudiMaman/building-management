@@ -1,35 +1,76 @@
 import React from 'react';
 
 /**
- * Pulse brand mark — single thin-line modernist building with a teal ECG
- * pulse running along its base. Inline SVG so it inherits the page's
- * font for the wordmark variant.
+ * Pulse brand mark — a clearly-tower-shaped landmark (setback crown +
+ * antenna, multiple floor lines) with a prominent teal ECG pulse along
+ * its base. Wordmark uses Bricolage Grotesque 800 — a free Google Font
+ * with the kind of geometric character iconic tech wordmarks lean on
+ * (Vercel/Linear/Cal.com territory) — rendered in the site's ink so the
+ * mark stays cohesive with body copy.
  *
  *   <Logo />         — combined lockup (icon + wordmark), text-dominant
  *   <LogoMark />     — icon only, square
  *   <LogoWordmark /> — text only
  *
- * All three render on transparent backgrounds. Wordmark uses Inter
- * (loaded globally by the marketing app) at weight 600 with tight
- * tracking — substituted gracefully by system-ui in fallback contexts.
+ * Every variant renders on a transparent background and forces LTR
+ * direction so the site's RTL context does not flip text coordinates.
  */
 
-const NAVY = '#1e3a5f';
+const INK = '#1c1917';
 const TEAL = '#2dd4bf';
 
-const PULSE_PATH =
-  'M2 92 L26 92 L32 92 L38 84 L44 104 L52 72 L60 102 L66 84 L72 92 L98 92';
+const TOWER_PATHS = (
+  <g
+    fill="none"
+    stroke={INK}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    {/* Antenna */}
+    <line x1="50" y1="2" x2="50" y2="14" strokeWidth="2.2" />
+    {/* Crown — narrower top section sitting on the main body */}
+    <path d="M40 14 L40 28 L60 28 L60 14 Z" strokeWidth="3" />
+    {/* Main body — wider tower */}
+    <path d="M26 28 L26 86 L74 28 Z" stroke="none" />
+    <path d="M26 28 L26 86 L74 86 L74 28 Z" strokeWidth="3.2" />
+    {/* Floor lines — five evenly-spaced divisions read clearly as windows */}
+    <line x1="26" y1="38" x2="74" y2="38" strokeWidth="1.6" />
+    <line x1="26" y1="48" x2="74" y2="48" strokeWidth="1.6" />
+    <line x1="26" y1="58" x2="74" y2="58" strokeWidth="1.6" />
+    <line x1="26" y1="68" x2="74" y2="68" strokeWidth="1.6" />
+    <line x1="26" y1="78" x2="74" y2="78" strokeWidth="1.6" />
+    {/* Vertical mullions — two columns of windows per floor */}
+    <line x1="42" y1="30" x2="42" y2="86" strokeWidth="1.4" />
+    <line x1="58" y1="30" x2="58" y2="86" strokeWidth="1.4" />
+    {/* Crown mullion */}
+    <line x1="50" y1="16" x2="50" y2="28" strokeWidth="1.4" />
+  </g>
+);
+
+const PULSE_PATH = (
+  <path
+    d="M2 96 L24 96 L30 96 L36 86 L44 108 L52 70 L60 106 L66 88 L72 96 L98 96"
+    fill="none"
+    stroke={TEAL}
+    strokeWidth="4"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+);
+
+const WORDMARK_FONT =
+  "'Bricolage Grotesque', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 interface BaseProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
   title?: string;
 }
 
-/** Single thin-line tower + teal pulse along its foundation. */
+/** Tower icon with teal pulse along the foundation. */
 export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 100 110"
+      viewBox="0 0 100 116"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -37,40 +78,17 @@ export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps
       {...rest}
       style={{ direction: 'ltr', ...(rest.style ?? {}) }}
     >
-      <g
-        fill="none"
-        stroke={NAVY}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* Tower body */}
-        <path d="M34 22 L34 86 L66 86 L66 22 Z" strokeWidth="3" />
-        {/* Antenna */}
-        <line x1="50" y1="22" x2="50" y2="8" strokeWidth="2" />
-        {/* Floor dividers */}
-        <line x1="34" y1="42" x2="66" y2="42" strokeWidth="1.6" />
-        <line x1="34" y1="62" x2="66" y2="62" strokeWidth="1.6" />
-        {/* Vertical mullion */}
-        <line x1="50" y1="24" x2="50" y2="86" strokeWidth="1.4" />
-      </g>
-      {/* ECG pulse along the foundation */}
-      <path
-        d={PULSE_PATH}
-        fill="none"
-        stroke={TEAL}
-        strokeWidth="3.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {TOWER_PATHS}
+      {PULSE_PATH}
     </svg>
   );
 }
 
-/** "Pulse" wordmark — inline so it inherits Inter from the page. */
+/** "Pulse" wordmark in Bricolage Grotesque 800. */
 export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 260 88"
+      viewBox="0 0 220 80"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -80,12 +98,12 @@ export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseP
     >
       <text
         x="0"
-        y="72"
-        fontFamily="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif"
-        fontSize="84"
-        fontWeight="600"
-        fill={NAVY}
-        letterSpacing="-2.5"
+        y="64"
+        fontFamily={WORDMARK_FONT}
+        fontSize="72"
+        fontWeight="800"
+        fill={INK}
+        letterSpacing="-2.2"
       >
         Pulse
       </text>
@@ -94,14 +112,13 @@ export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseP
 }
 
 /**
- * Combined lockup. Text-dominant: the icon takes ~22% of the lockup
- * width while the wordmark fills the rest — addresses the previous
- * version where the icon felt too heavy next to the text.
+ * Combined lockup — wordmark dominates while the tower mark reads as a
+ * recognizable landmark on the left.
  */
 export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 360 100"
+      viewBox="0 0 300 88"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -109,38 +126,20 @@ export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
       {...rest}
       style={{ direction: 'ltr', ...(rest.style ?? {}) }}
     >
-      {/* Mark — scaled to ~70x77 in the lockup */}
-      <g transform="translate(0, 8) scale(0.7)">
-        <g
-          fill="none"
-          stroke={NAVY}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M34 22 L34 86 L66 86 L66 22 Z" strokeWidth="3" />
-          <line x1="50" y1="22" x2="50" y2="8" strokeWidth="2" />
-          <line x1="34" y1="42" x2="66" y2="42" strokeWidth="1.6" />
-          <line x1="34" y1="62" x2="66" y2="62" strokeWidth="1.6" />
-          <line x1="50" y1="24" x2="50" y2="86" strokeWidth="1.4" />
-        </g>
-        <path
-          d={PULSE_PATH}
-          fill="none"
-          stroke={TEAL}
-          strokeWidth="3.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      {/* Mark — scaled to ~70 tall sitting alongside the wordmark */}
+      <g transform="translate(2, 0) scale(0.66)">
+        {TOWER_PATHS}
+        {PULSE_PATH}
       </g>
-      {/* Wordmark — sized to dominate */}
+      {/* Wordmark — Bricolage 800 in ink */}
       <text
-        x="84"
-        y="78"
-        fontFamily="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif"
-        fontSize="84"
-        fontWeight="600"
-        fill={NAVY}
-        letterSpacing="-2.5"
+        x="78"
+        y="66"
+        fontFamily={WORDMARK_FONT}
+        fontSize="68"
+        fontWeight="800"
+        fill={INK}
+        letterSpacing="-2"
       >
         Pulse
       </text>

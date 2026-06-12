@@ -44,7 +44,10 @@ export function Header() {
               parent doesn't reserve space for SVG intrinsic sizing. */}
           <Logo
             className="block transition-all duration-300"
-            style={{ height: scrolled ? 28 : 36, width: (scrolled ? 28 : 36) * 3.6 }}
+            style={{
+              height: scrolled ? 30 : 40,
+              width: (scrolled ? 30 : 40) * (300 / 88),
+            }}
           />
         </Link>
 

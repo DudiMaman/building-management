@@ -9,7 +9,7 @@ export function Footer() {
         <div className="grid gap-10 border-b pb-10 md:grid-cols-12" style={{ borderColor: 'var(--line-2)' }}>
           <div className="md:col-span-6">
             <Link href="/v5" aria-label="Pulse — דף הבית" className="inline-flex">
-              <Logo className="block" style={{ height: 36, width: 130 }} />
+              <Logo className="block" style={{ height: 38, width: 38 * (300 / 88) }} />
             </Link>
             <p className="mt-4 max-w-sm text-[14px] leading-[1.65] text-[var(--ink-3)]">
               מערכת התפעול לחברות ניהול נדל"ן ולוועדי בית בישראל.
