@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 80" role="img" aria-label="Pulse">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" role="img" aria-label="Pulse">
   <text
     x="0"
-    y="64"
-    font-family="'Bricolage Grotesque', 'Inter', system-ui, sans-serif"
-    font-size="72"
-    font-weight="800"
+    y="62"
+    font-family="'IBM Plex Sans', 'Inter', system-ui, sans-serif"
+    font-size="60"
+    font-weight="500"
     fill="#1c1917"
-    letter-spacing="-2.2"
+    letter-spacing="1.6"
   >Pulse</text>
 </svg>

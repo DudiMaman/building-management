@@ -34,7 +34,7 @@ export function Header() {
     >
       <div
         className={`container flex items-center justify-between transition-all duration-300 ${
-          scrolled ? 'h-[58px]' : 'h-[74px]'
+          scrolled ? 'h-[64px]' : 'h-[84px]'
         }`}
       >
         <Link href="/v5" aria-label="Pulse — דף הבית" className="flex shrink-0 items-center">
@@ -45,8 +45,8 @@ export function Header() {
           <Logo
             className="block transition-all duration-300"
             style={{
-              height: scrolled ? 34 : 44,
-              width: (scrolled ? 34 : 44) * (310 / 92),
+              height: scrolled ? 40 : 52,
+              width: (scrolled ? 40 : 52) * (280 / 100),
             }}
           />
         </Link>

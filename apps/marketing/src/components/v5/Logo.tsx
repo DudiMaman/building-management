@@ -1,14 +1,14 @@
 import React from 'react';
 
 /**
- * Pulse brand mark — three thin-line skyscrapers (tallest in the middle
- * with a sharp angled crown, shorter towers flanking it) standing on a
- * horizontal baseline that breaks into a single teal pulse spike rising
- * between the center and right towers. Wordmark uses Bricolage Grotesque
- * 800 in site ink so it integrates with body type while the mark keeps
- * its navy + teal brand identity.
+ * Pulse brand mark — three thin-line skyscrapers (short / tall-with-
+ * angled-crown / medium) standing on a horizontal baseline that breaks
+ * into a single teal pulse spike rising between the center and right
+ * towers. Wordmark uses IBM Plex Sans 500 — a Medium-weight serious-
+ * business face with open apertures and wide tracking so "Pulse" reads
+ * as a corporate landmark, not a heavy display headline.
  *
- *   <Logo />         — combined lockup (icon + wordmark), text-dominant
+ *   <Logo />         — combined lockup (icon + wordmark), 50/50 balance
  *   <LogoMark />     — icon only, square
  *   <LogoWordmark /> — text only
  *
@@ -71,7 +71,7 @@ const PULSE_PATH = (
 );
 
 const WORDMARK_FONT =
-  "'Bricolage Grotesque', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif";
+  "'IBM Plex Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 interface BaseProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
@@ -96,11 +96,11 @@ export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps
   );
 }
 
-/** "Pulse" wordmark in Bricolage Grotesque 800. */
+/** "Pulse" wordmark in IBM Plex Sans 500. */
 export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 220 80"
+      viewBox="0 0 240 80"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -110,12 +110,12 @@ export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseP
     >
       <text
         x="0"
-        y="64"
+        y="62"
         fontFamily={WORDMARK_FONT}
-        fontSize="72"
-        fontWeight="800"
+        fontSize="60"
+        fontWeight="500"
         fill={INK}
-        letterSpacing="-2.2"
+        letterSpacing="1.6"
       >
         Pulse
       </text>
@@ -124,13 +124,15 @@ export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseP
 }
 
 /**
- * Combined lockup — wordmark dominates, mark reads as a clear three-tower
- * skyline on the left.
+ * Combined lockup — mark and wordmark share roughly equal weight so the
+ * skyline icon is fully legible at any reasonable header size. Wordmark
+ * uses IBM Plex Sans Medium (500) with open tracking for a serious
+ * corporate feel.
  */
 export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 310 92"
+      viewBox="0 0 280 100"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -138,20 +140,18 @@ export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
       {...rest}
       style={{ direction: 'ltr', ...(rest.style ?? {}) }}
     >
-      {/* Mark — scaled into ~84x84 region on the left */}
-      <g transform="translate(2, 4) scale(0.84)">
-        {TOWER_PATHS}
-        {PULSE_PATH}
-      </g>
-      {/* Wordmark — Bricolage 800 in ink */}
+      {/* Mark — full-height, no scaling, takes left ~36% of lockup */}
+      {TOWER_PATHS}
+      {PULSE_PATH}
+      {/* Wordmark — IBM Plex Sans Medium in ink, generously tracked */}
       <text
-        x="96"
-        y="70"
+        x="110"
+        y="64"
         fontFamily={WORDMARK_FONT}
-        fontSize="68"
-        fontWeight="800"
+        fontSize="56"
+        fontWeight="500"
         fill={INK}
-        letterSpacing="-2"
+        letterSpacing="1.4"
       >
         Pulse
       </text>
