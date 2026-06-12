@@ -1,58 +1,70 @@
 import React from 'react';
 
 /**
- * Pulse brand mark — a clearly-tower-shaped landmark (setback crown +
- * antenna, multiple floor lines) with a prominent teal ECG pulse along
- * its base. Wordmark uses Bricolage Grotesque 800 — a free Google Font
- * with the kind of geometric character iconic tech wordmarks lean on
- * (Vercel/Linear/Cal.com territory) — rendered in the site's ink so the
- * mark stays cohesive with body copy.
+ * Pulse brand mark — three thin-line skyscrapers (tallest in the middle
+ * with a sharp angled crown, shorter towers flanking it) standing on a
+ * horizontal baseline that breaks into a single teal pulse spike rising
+ * between the center and right towers. Wordmark uses Bricolage Grotesque
+ * 800 in site ink so it integrates with body type while the mark keeps
+ * its navy + teal brand identity.
  *
  *   <Logo />         — combined lockup (icon + wordmark), text-dominant
  *   <LogoMark />     — icon only, square
  *   <LogoWordmark /> — text only
  *
- * Every variant renders on a transparent background and forces LTR
- * direction so the site's RTL context does not flip text coordinates.
+ * Every variant renders on transparent background and forces LTR
+ * direction so the site's RTL context doesn't flip text coordinates.
  */
 
-const INK = '#1c1917';
+const NAVY = '#1e3a5f';
 const TEAL = '#2dd4bf';
+const INK = '#1c1917';
 
 const TOWER_PATHS = (
-  <g
-    fill="none"
-    stroke={INK}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {/* Antenna */}
-    <line x1="50" y1="2" x2="50" y2="14" strokeWidth="2.2" />
-    {/* Crown — narrower top section sitting on the main body */}
-    <path d="M40 14 L40 28 L60 28 L60 14 Z" strokeWidth="3" />
-    {/* Main body — wider tower */}
-    <path d="M26 28 L26 86 L74 28 Z" stroke="none" />
-    <path d="M26 28 L26 86 L74 86 L74 28 Z" strokeWidth="3.2" />
-    {/* Floor lines — five evenly-spaced divisions read clearly as windows */}
-    <line x1="26" y1="38" x2="74" y2="38" strokeWidth="1.6" />
-    <line x1="26" y1="48" x2="74" y2="48" strokeWidth="1.6" />
-    <line x1="26" y1="58" x2="74" y2="58" strokeWidth="1.6" />
-    <line x1="26" y1="68" x2="74" y2="68" strokeWidth="1.6" />
-    <line x1="26" y1="78" x2="74" y2="78" strokeWidth="1.6" />
-    {/* Vertical mullions — two columns of windows per floor */}
-    <line x1="42" y1="30" x2="42" y2="86" strokeWidth="1.4" />
-    <line x1="58" y1="30" x2="58" y2="86" strokeWidth="1.4" />
-    {/* Crown mullion */}
-    <line x1="50" y1="16" x2="50" y2="28" strokeWidth="1.4" />
+  <g fill="none" stroke={NAVY} strokeLinecap="square" strokeLinejoin="miter">
+    {/* Left tower — shorter, top slants up to the right */}
+    <path d="M14 92 L14 56 L30 46 L30 92 Z" strokeWidth="2.2" />
+    {/* Center tower — tallest, sharp diagonal crown */}
+    <path d="M36 92 L36 24 L54 6 L54 92 Z" strokeWidth="2.2" />
+    {/* Right tower — medium, top slants up to the left */}
+    <path d="M60 92 L60 40 L76 30 L76 92 Z" strokeWidth="2.2" />
+
+    {/* Window stripes — thin horizontals densely packed for the
+        "many floors" feel of the reference */}
+    <g strokeWidth="1.1" strokeLinecap="round">
+      {/* Left tower */}
+      <line x1="18" y1="60" x2="26" y2="60" />
+      <line x1="18" y1="66" x2="26" y2="66" />
+      <line x1="18" y1="72" x2="26" y2="72" />
+      <line x1="18" y1="78" x2="26" y2="78" />
+      <line x1="18" y1="84" x2="26" y2="84" />
+      {/* Center tower */}
+      <line x1="40" y1="32" x2="50" y2="32" />
+      <line x1="40" y1="40" x2="50" y2="40" />
+      <line x1="40" y1="48" x2="50" y2="48" />
+      <line x1="40" y1="56" x2="50" y2="56" />
+      <line x1="40" y1="64" x2="50" y2="64" />
+      <line x1="40" y1="72" x2="50" y2="72" />
+      <line x1="40" y1="80" x2="50" y2="80" />
+      <line x1="40" y1="86" x2="50" y2="86" />
+      {/* Right tower */}
+      <line x1="64" y1="44" x2="72" y2="44" />
+      <line x1="64" y1="52" x2="72" y2="52" />
+      <line x1="64" y1="60" x2="72" y2="60" />
+      <line x1="64" y1="68" x2="72" y2="68" />
+      <line x1="64" y1="76" x2="72" y2="76" />
+      <line x1="64" y1="84" x2="72" y2="84" />
+    </g>
   </g>
 );
 
+/** Single sharp pulse spike rising between the center and right towers. */
 const PULSE_PATH = (
   <path
-    d="M2 96 L24 96 L30 96 L36 86 L44 108 L52 70 L60 106 L66 88 L72 96 L98 96"
+    d="M2 96 L52 96 L58 62 L64 96 L98 96"
     fill="none"
     stroke={TEAL}
-    strokeWidth="4"
+    strokeWidth="2.8"
     strokeLinecap="round"
     strokeLinejoin="round"
   />
@@ -66,11 +78,11 @@ interface BaseProps extends React.SVGProps<SVGSVGElement> {
   title?: string;
 }
 
-/** Tower icon with teal pulse along the foundation. */
+/** Three thin-line skyscrapers with a teal pulse rising between them. */
 export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 100 116"
+      viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -112,13 +124,13 @@ export function LogoWordmark({ className = '', title = 'Pulse', ...rest }: BaseP
 }
 
 /**
- * Combined lockup — wordmark dominates while the tower mark reads as a
- * recognizable landmark on the left.
+ * Combined lockup — wordmark dominates, mark reads as a clear three-tower
+ * skyline on the left.
  */
 export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 300 88"
+      viewBox="0 0 310 92"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -126,15 +138,15 @@ export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
       {...rest}
       style={{ direction: 'ltr', ...(rest.style ?? {}) }}
     >
-      {/* Mark — scaled to ~70 tall sitting alongside the wordmark */}
-      <g transform="translate(2, 0) scale(0.66)">
+      {/* Mark — scaled into ~84x84 region on the left */}
+      <g transform="translate(2, 4) scale(0.84)">
         {TOWER_PATHS}
         {PULSE_PATH}
       </g>
       {/* Wordmark — Bricolage 800 in ink */}
       <text
-        x="78"
-        y="66"
+        x="96"
+        y="70"
         fontFamily={WORDMARK_FONT}
         fontSize="68"
         fontWeight="800"

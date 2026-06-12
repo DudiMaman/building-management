@@ -45,8 +45,8 @@ export function Header() {
           <Logo
             className="block transition-all duration-300"
             style={{
-              height: scrolled ? 30 : 40,
-              width: (scrolled ? 30 : 40) * (300 / 88),
+              height: scrolled ? 34 : 44,
+              width: (scrolled ? 34 : 44) * (310 / 92),
             }}
           />
         </Link>
@@ -63,12 +63,12 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link href="/login" className="text-[14px] font-medium text-[var(--ink-2)] hover:text-[var(--ink)]">
+        <div className="hidden items-center lg:flex">
+          <Link
+            href="/login"
+            className="text-[15px] font-medium text-[var(--ink-2)] hover:text-[var(--ink)]"
+          >
             התחברות
-          </Link>
-          <Link href="#cta" className="btn btn-ink" style={{ minHeight: 42, padding: '10px 20px', fontSize: 14 }}>
-            תאמו הדגמה
           </Link>
         </div>
 
@@ -98,12 +98,9 @@ export function Header() {
                 </a>
               ))}
             </nav>
-            <div className="mb-4 mt-4 flex flex-col gap-2">
+            <div className="mb-4 mt-4">
               <Link href="/login" className="btn btn-ghost w-full" onClick={() => setOpen(false)}>
                 התחברות
-              </Link>
-              <Link href="#cta" className="btn btn-ink w-full" onClick={() => setOpen(false)}>
-                תאמו הדגמה
               </Link>
             </div>
           </div>

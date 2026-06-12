@@ -83,7 +83,7 @@ export function PlatformStory() {
   }, []);
 
   return (
-    <section id="story" className="section border-t" style={{ borderColor: 'var(--line)' }}>
+    <section id="story" className="pb-16 pt-2 md:pb-24 md:pt-4 lg:pb-32 lg:pt-4">
       <div className="container">
         <div className="max-w-2xl">
           <div className="eyebrow">הפלטפורמה</div>
