@@ -13,7 +13,7 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="container pb-2 pt-10 md:pb-2 md:pt-12 lg:pb-2 lg:pt-14">
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-10">
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-10">
           <div className="lg:col-span-7">
             <Reveal>
               <h1 className="hero-h1">
