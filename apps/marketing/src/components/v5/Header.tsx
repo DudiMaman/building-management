@@ -46,7 +46,7 @@ export function Header() {
             className="block transition-all duration-300"
             style={{
               height: scrolled ? 44 : 58,
-              width: (scrolled ? 44 : 58) * (280 / 100),
+              width: (scrolled ? 44 : 58) * (290 / 100),
             }}
           />
         </Link>
@@ -66,7 +66,8 @@ export function Header() {
         <div className="hidden items-center lg:flex">
           <Link
             href="/login"
-            className="text-[15px] font-medium text-[var(--ink-2)] hover:text-[var(--ink)]"
+            className="btn btn-ink"
+            style={{ minHeight: 42, padding: '10px 22px', fontSize: 14 }}
           >
             התחברות
           </Link>
