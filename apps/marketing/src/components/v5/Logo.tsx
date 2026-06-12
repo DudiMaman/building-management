@@ -1,75 +1,76 @@
 import React from 'react';
 
 /**
- * Pulse brand mark — three bold-line skyscrapers with slanted window
- * stripes (small / very tall with sharp triangular crown / tall with
- * sharp crown) standing on a baseline that breaks into a full ECG
- * W-pattern: rise to first peak, deep plunge below baseline, taller
- * second peak, settle. Pulse line is rendered in saturated red, the
- * buildings in ink — the lone color accent in the entire site.
+ * Pulse brand mark — refined from the user's reference sketch: three
+ * thin-line towers with slanted crowns (short left rising right, tall
+ * center peaking sharply top-right, medium right sloping down-right)
+ * and slanted window dashes. The towers stand on a thin ground line
+ * that carries a single refined ECG blip to their right — drawn in the
+ * site's brass accent so the logo speaks the same visual language as
+ * the rest of the page.
  *
- *   <Logo />         — combined lockup (icon + 'PULSE' wordmark)
+ * Wordmark: 'PULSE' in Inter Medium (500), all-caps, open tracking —
+ * serious and businesslike, and already part of the site's font stack.
+ * Its baseline sits on the same ground line as the towers.
+ *
+ *   <Logo />         — combined lockup (icon left, PULSE to its right)
  *   <LogoMark />     — icon only, square
  *   <LogoWordmark /> — text only
  *
- * Every variant renders on transparent background and forces LTR
- * direction so the site's RTL context doesn't flip text coordinates.
+ * All variants render on transparent backgrounds and force LTR so the
+ * site's RTL context doesn't flip text coordinates.
  */
 
 const INK = '#1c1917';
-const PULSE_RED = '#dc2626';
+const BRASS = '#a16207';
 
 const TOWER_PATHS = (
-  <g fill="none" stroke={INK} strokeLinecap="round" strokeLinejoin="round">
-    {/* Left short building — flat top rising slightly to the right */}
-    <path d="M8 88 L8 62 L26 56 L26 88 Z" strokeWidth="3.5" />
-    {/* Center tallest building — sharp triangular peak in the middle */}
-    <path d="M30 88 L30 28 L40 4 L50 28 L50 88 Z" strokeWidth="3.5" />
-    {/* Right tall building — sharp triangular peak, slightly shorter */}
-    <path d="M54 88 L54 36 L65 18 L76 36 L76 88 Z" strokeWidth="3.5" />
+  <g fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    {/* Left tower — short, crown slants up to the right */}
+    <path d="M8 90 L8 58 L24 50 L24 90" />
+    {/* Center tower — tallest, diagonal rising to a sharp top-right peak */}
+    <path d="M32 90 L32 28 L52 6 L52 90" />
+    {/* Right tower — medium, crown slants down to the right */}
+    <path d="M58 90 L58 34 L76 44 L76 90" />
 
-    {/* Slanted window stripes — right edge higher than left, creating
-        the perspective effect seen in the reference */}
-    <g strokeWidth="1.5" strokeLinecap="round">
-      {/* Left building */}
-      <line x1="22" y1="66" x2="10" y2="69" />
-      <line x1="22" y1="72" x2="10" y2="75" />
-      <line x1="22" y1="78" x2="10" y2="81" />
-      <line x1="22" y1="84" x2="10" y2="87" />
-      {/* Center building */}
-      <line x1="48" y1="34" x2="32" y2="37" />
-      <line x1="48" y1="40" x2="32" y2="43" />
-      <line x1="48" y1="46" x2="32" y2="49" />
-      <line x1="48" y1="52" x2="32" y2="55" />
-      <line x1="48" y1="58" x2="32" y2="61" />
-      <line x1="48" y1="64" x2="32" y2="67" />
-      <line x1="48" y1="70" x2="32" y2="73" />
-      <line x1="48" y1="76" x2="32" y2="79" />
-      <line x1="48" y1="82" x2="32" y2="85" />
-      {/* Right building */}
-      <line x1="74" y1="42" x2="56" y2="45" />
-      <line x1="74" y1="48" x2="56" y2="51" />
-      <line x1="74" y1="54" x2="56" y2="57" />
-      <line x1="74" y1="60" x2="56" y2="63" />
-      <line x1="74" y1="66" x2="56" y2="69" />
-      <line x1="74" y1="72" x2="56" y2="75" />
-      <line x1="74" y1="78" x2="56" y2="81" />
-      <line x1="74" y1="84" x2="56" y2="87" />
+    {/* Slanted window dashes — rising gently to the right, like the sketch */}
+    <g strokeWidth="1.5">
+      {/* Left tower */}
+      <line x1="11" y1="64" x2="21" y2="61" />
+      <line x1="11" y1="70" x2="21" y2="67" />
+      <line x1="11" y1="76" x2="21" y2="73" />
+      <line x1="11" y1="82" x2="21" y2="79" />
+      {/* Center tower */}
+      <line x1="35" y1="34" x2="49" y2="30" />
+      <line x1="35" y1="41" x2="49" y2="37" />
+      <line x1="35" y1="48" x2="49" y2="44" />
+      <line x1="35" y1="55" x2="49" y2="51" />
+      <line x1="35" y1="62" x2="49" y2="58" />
+      <line x1="35" y1="69" x2="49" y2="65" />
+      <line x1="35" y1="76" x2="49" y2="72" />
+      <line x1="35" y1="83" x2="49" y2="79" />
+      {/* Right tower */}
+      <line x1="61" y1="50" x2="73" y2="47" />
+      <line x1="61" y1="57" x2="73" y2="54" />
+      <line x1="61" y1="64" x2="73" y2="61" />
+      <line x1="61" y1="71" x2="73" y2="68" />
+      <line x1="61" y1="78" x2="73" y2="75" />
+      <line x1="61" y1="84" x2="73" y2="81" />
     </g>
   </g>
 );
 
 /**
- * Bold red ECG: long horizontal baseline, rise to a first peak, deep
- * plunge below baseline (the dramatic S valley), taller second peak,
- * settle back to baseline.
+ * Ground line + a single refined ECG blip just past the towers —
+ * small dip, one sharp narrow spike, slight undershoot, settle.
+ * Brass, so the pulse reads as the brand's heartbeat without shouting.
  */
 const PULSE_PATH = (
   <path
-    d="M2 92 L20 92 L26 82 L30 56 L36 100 L42 36 L48 96 L54 82 L58 92 L98 92"
+    d="M2 90 L78 90 L81 93 L85 68 L89 97 L92 90 L98 90"
     fill="none"
-    stroke={PULSE_RED}
-    strokeWidth="4"
+    stroke={BRASS}
+    strokeWidth="2.4"
     strokeLinecap="round"
     strokeLinejoin="round"
   />
@@ -83,7 +84,7 @@ interface BaseProps extends React.SVGProps<SVGSVGElement> {
   title?: string;
 }
 
-/** Three bold-line skyscrapers with a red ECG pulse at the base. */
+/** Icon only — three slant-crowned towers on a pulsing ground line. */
 export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
@@ -101,11 +102,11 @@ export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps
   );
 }
 
-/** "PULSE" wordmark — Inter Light all-caps with very open tracking. */
+/** "PULSE" wordmark — Inter Medium, all-caps, open tracking. */
 export function LogoWordmark({ className = '', title = 'PULSE', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 240 80"
+      viewBox="0 0 230 80"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -115,12 +116,12 @@ export function LogoWordmark({ className = '', title = 'PULSE', ...rest }: BaseP
     >
       <text
         x="0"
-        y="56"
+        y="58"
         fontFamily={WORDMARK_FONT}
-        fontSize="48"
-        fontWeight="300"
+        fontSize="46"
+        fontWeight="500"
         fill={INK}
-        letterSpacing="7"
+        letterSpacing="6"
       >
         PULSE
       </text>
@@ -129,13 +130,14 @@ export function LogoWordmark({ className = '', title = 'PULSE', ...rest }: BaseP
 }
 
 /**
- * Combined lockup — icon left (with red pulse), 'PULSE' wordmark right.
- * Wordmark unchanged from previous version per current direction.
+ * Full lockup — icon on the left, PULSE to its right, both standing on
+ * the same ground line (the wordmark's baseline equals the icon's
+ * ground at y=90) so the composition reads as one skyline.
  */
 export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
   return (
     <svg
-      viewBox="0 0 290 100"
+      viewBox="0 0 300 100"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -146,11 +148,11 @@ export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
       {TOWER_PATHS}
       {PULSE_PATH}
       <text
-        x="106"
-        y="72"
+        x="112"
+        y="88"
         fontFamily={WORDMARK_FONT}
-        fontSize="44"
-        fontWeight="300"
+        fontSize="46"
+        fontWeight="500"
         fill={INK}
         letterSpacing="6"
       >

@@ -45,8 +45,8 @@ export function Header() {
           <div
             className={`block transition-all duration-300 ${
               scrolled
-                ? 'h-[56px] w-[162px] lg:h-[88px] lg:w-[255px]'
-                : 'h-[64px] w-[186px] lg:h-[116px] lg:w-[336px]'
+                ? 'h-[56px] w-[168px] lg:h-[88px] lg:w-[264px]'
+                : 'h-[64px] w-[192px] lg:h-[116px] lg:w-[348px]'
             }`}
           >
             <Logo className="h-full w-full" />
