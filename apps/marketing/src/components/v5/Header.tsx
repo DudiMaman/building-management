@@ -34,19 +34,19 @@ export function Header() {
     >
       <div
         className={`container flex items-center justify-between transition-all duration-300 ${
-          scrolled ? 'h-[76px] lg:h-[108px]' : 'h-[84px] lg:h-[140px]'
+          scrolled ? 'h-[76px] lg:h-[88px]' : 'h-[84px] lg:h-[112px]'
         }`}
       >
         <Link href="/v5" aria-label="Pulse — דף הבית" className="flex shrink-0 items-center">
-          {/* Combined logo, inline so the Inter wordmark always loads.
-              Aspect ratio 290:100 (= 2.9:1). Doubled vs the previous
-              header logo on desktop; scaled down on mobile so the
-              wordmark doesn't run off the viewport. */}
+          {/* Combined logo, inline so the wordmark font always loads.
+              Aspect ratio 300:100 (= 3:1). Eased down from the earlier
+              oversized desktop mark for better proportion; mobile sizes
+              keep the wordmark inside the viewport. */}
           <div
             className={`block transition-all duration-300 ${
               scrolled
-                ? 'h-[56px] w-[168px] lg:h-[88px] lg:w-[264px]'
-                : 'h-[64px] w-[192px] lg:h-[116px] lg:w-[348px]'
+                ? 'h-[56px] w-[168px] lg:h-[64px] lg:w-[192px]'
+                : 'h-[64px] w-[192px] lg:h-[88px] lg:w-[264px]'
             }`}
           >
             <Logo className="h-full w-full" />

@@ -9,9 +9,10 @@ import React from 'react';
  * site's brass accent so the logo speaks the same visual language as
  * the rest of the page.
  *
- * Wordmark: 'PULSE' in Inter Medium (500), all-caps, open tracking —
- * serious and businesslike, and already part of the site's font stack.
- * Its baseline sits on the same ground line as the towers.
+ * Wordmark: 'PULSE' in Space Grotesk Medium (500), all-caps, open
+ * tracking — a geometric grotesque with more character than a neutral
+ * sans, while staying serious. Its baseline sits on the same ground
+ * line as the towers.
  *
  *   <Logo />         — combined lockup (icon left, PULSE to its right)
  *   <LogoMark />     — icon only, square
@@ -23,6 +24,8 @@ import React from 'react';
 
 const INK = '#1c1917';
 const BRASS = '#a16207';
+/** A lighter brass for the drifting highlight on the pulse trace. */
+const SPARK = '#d4a017';
 
 const TOWER_PATHS = (
   <g fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -60,24 +63,33 @@ const TOWER_PATHS = (
   </g>
 );
 
+/** The ECG geometry — ground line + a single refined blip just past the
+ *  towers (small dip, one sharp narrow spike, slight undershoot, settle). */
+const PULSE_D = 'M2 90 L78 90 L81 93 L85 68 L89 97 L92 90 L98 90';
+
 /**
- * Ground line + a single refined ECG blip just past the towers —
- * small dip, one sharp narrow spike, slight undershoot, settle.
- * Brass, so the pulse reads as the brand's heartbeat without shouting.
+ * Ground line + heartbeat blip, in the site's brass accent so the pulse
+ * reads as the brand's heartbeat without shouting. A second, lighter
+ * copy (`.pulse-spark`) carries a soft highlight that drifts along the
+ * trace — a gentle, monitor-like beat. The motion lives in `v5.css`
+ * (class `pulse-spark`) and is disabled under prefers-reduced-motion.
  */
-const PULSE_PATH = (
-  <path
-    d="M2 90 L78 90 L81 93 L85 68 L89 97 L92 90 L98 90"
-    fill="none"
-    stroke={BRASS}
-    strokeWidth="2.4"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />
+const PULSE_GROUP = (
+  <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d={PULSE_D} stroke={BRASS} strokeWidth="2.4" />
+    <path
+      className="pulse-spark"
+      d={PULSE_D}
+      stroke={SPARK}
+      strokeWidth="2.6"
+      pathLength={100}
+      strokeDasharray="12 100"
+    />
+  </g>
 );
 
 const WORDMARK_FONT =
-  "'Inter', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif";
+  "'Space Grotesk', 'Inter', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 interface BaseProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
@@ -97,12 +109,12 @@ export function LogoMark({ className = '', title = 'Pulse', ...rest }: BaseProps
       style={{ direction: 'ltr', ...(rest.style ?? {}) }}
     >
       {TOWER_PATHS}
-      {PULSE_PATH}
+      {PULSE_GROUP}
     </svg>
   );
 }
 
-/** "PULSE" wordmark — Inter Medium, all-caps, open tracking. */
+/** "PULSE" wordmark — Space Grotesk Medium, all-caps, open tracking. */
 export function LogoWordmark({ className = '', title = 'PULSE', ...rest }: BaseProps) {
   return (
     <svg
@@ -146,7 +158,7 @@ export function Logo({ className = '', title = 'Pulse', ...rest }: BaseProps) {
       style={{ direction: 'ltr', ...(rest.style ?? {}) }}
     >
       {TOWER_PATHS}
-      {PULSE_PATH}
+      {PULSE_GROUP}
       <text
         x="112"
         y="88"
