@@ -64,9 +64,21 @@ Backend "make the skeletons real" pass — all typecheck 16/16, 41 tests green:
   satisfaction prompt on close; `findSlaBreaches()`.
 - **Compliance**: `GET /v1/me/export` + `DELETE /v1/me/erase` (§24.2).
 
-Still open (next): recurring/reactive tasks (§17), document ACL/expiry-cron/
-search (§39), invitation flow (§5.5), admin/resident/maintenance front-ends
-(biggest gap), map (§23), Sentry (§27), i18n wiring (§28), pgvector RAG.
+Also closed this session (round 2):
+- **Documents §39**: full-text search endpoint; daily expiry-scan cron
+  (DocumentsWorker) → idempotent renewal tasks.
+- **Tasks §17**: reactive task auto-created + auto-assigned (skills + least
+  load) on ticket triage for field categories.
+- **Invitations §5.5**: mgmt/worker invite + public accept (provisions
+  management_users / maintenance_workers), TTL + single-use.
+- **Addons §19.2**: checkout raises a charge (Tranzila pipeline) +
+  fulfillment lifecycle.
+
+Still open (next): admin/resident/maintenance **front-ends (biggest gap)**,
+document graded ACL on read (§39.4), polls vote_audit_log chain (§16.5),
+reports expansion + CSV export (§22), accounting export (§11.9), map (§23),
+Sentry/metrics (§27), i18n wiring (§28), pgvector embeddings RAG (§14.4),
+JWT custom-claims hook (§5.1-5.2).
 
 ### Billing re-scoping — see [`docs/decisions.md`](./docs/decisions.md) ADR-001
 Billing **execution** (recurring/standing orders, card-side dunning/retries,
