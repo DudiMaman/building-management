@@ -74,11 +74,22 @@ Also closed this session (round 2):
 - **Addons §19.2**: checkout raises a charge (Tranzila pipeline) +
   fulfillment lifecycle.
 
-Still open (next): admin/resident/maintenance **front-ends (biggest gap)**,
-document graded ACL on read (§39.4), polls vote_audit_log chain (§16.5),
-reports expansion + CSV export (§22), accounting export (§11.9), map (§23),
-Sentry/metrics (§27), i18n wiring (§28), pgvector embeddings RAG (§14.4),
-JWT custom-claims hook (§5.1-5.2).
+Also closed (round 3):
+- **Polls §16.5**: votes recorded into the hash-chained audit log (anon-safe).
+- **Reports §22**: cash-flow, worker-productivity, addon-revenue + CSV export
+  (BOM) endpoints.
+- **Documents §39.4/39.6**: resident-facing graded-ACL read (GET /me/documents).
+- **Bulletin §15.2-15.3**: distribution fanout on publish + audience-filtered
+  resident feed.
+
+Remaining (need the user present OR external services):
+- **Front-ends — the biggest remaining work** (admin pages, resident app,
+  maintenance app): best done with the user able to run & review the UI.
+- External-service items: Sentry/metrics (§27, needs DSN+SDK dep), pgvector
+  embeddings RAG (§14.4, OpenAI key), JWT custom-claims hook (§5.1-5.2,
+  Supabase project), admin Map (§23, Mapbox).
+- Larger refactor: full i18n wiring in the apps (§28), accounting-package
+  export adapters (§11.9 — note ADR-001: collection itself is Tranzila's).
 
 ### Billing re-scoping — see [`docs/decisions.md`](./docs/decisions.md) ADR-001
 Billing **execution** (recurring/standing orders, card-side dunning/retries,
