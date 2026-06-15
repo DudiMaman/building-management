@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, Query, Req, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { SupabaseJwtGuard, type AuthenticatedRequest } from '../auth/supabase-jwt.guard';
 import { Roles, RolesGuard } from '../auth/roles.decorator';
@@ -27,5 +27,38 @@ export class ReportsController {
   @Get('per-person-ar')
   perPersonAr(@Req() req: AuthenticatedRequest) {
     return this.reports.perPersonAr(req.claims.tenant_id);
+  }
+
+  @Get('cash-flow')
+  cashFlow(@Req() req: AuthenticatedRequest, @Query('months') months?: string) {
+    return this.reports.cashFlow(req.claims.tenant_id, months ? Number(months) : 12);
+  }
+
+  @Get('worker-productivity')
+  workerProductivity(@Req() req: AuthenticatedRequest) {
+    return this.reports.workerProductivity(req.claims.tenant_id);
+  }
+
+  @Get('addon-revenue')
+  addonRevenue(@Req() req: AuthenticatedRequest) {
+    return this.reports.addonRevenue(req.claims.tenant_id);
+  }
+
+  /** CSV export of the debtors (per-person AR) list — Excel-friendly (BOM). */
+  @Get('per-person-ar.csv')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  @Header('Content-Disposition', 'attachment; filename="debtors.csv"')
+  async perPersonArCsv(@Req() req: AuthenticatedRequest) {
+    const rows = (await this.reports.perPersonAr(req.claims.tenant_id)) as Array<Record<string, unknown>>;
+    return this.reports.toCsv(rows);
+  }
+
+  /** CSV export of worker productivity. */
+  @Get('worker-productivity.csv')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  @Header('Content-Disposition', 'attachment; filename="worker-productivity.csv"')
+  async workerProductivityCsv(@Req() req: AuthenticatedRequest) {
+    const rows = (await this.reports.workerProductivity(req.claims.tenant_id)) as Array<Record<string, unknown>>;
+    return this.reports.toCsv(rows);
   }
 }

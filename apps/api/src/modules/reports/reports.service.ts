@@ -116,4 +116,91 @@ export class ReportsService {
       return rows;
     });
   }
+
+  /** Monthly cash flow: billed vs collected over the last N months (SPEC §22.2). */
+  async cashFlow(tenantId: string, months = 12) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query(
+        `with billed as (
+           select to_char(date_trunc('month', due_date), 'YYYY-MM') as month,
+                  sum(amount) as billed
+           from charges
+           where due_date >= date_trunc('month', current_date) - ($1 || ' months')::interval
+           group by 1
+         ),
+         collected as (
+           select to_char(date_trunc('month', captured_at), 'YYYY-MM') as month,
+                  sum(amount) as collected
+           from payments
+           where status = 'captured'
+             and captured_at >= date_trunc('month', current_date) - ($1 || ' months')::interval
+           group by 1
+         )
+         select coalesce(b.month, c.month) as month,
+                coalesce(b.billed, 0)::text as billed,
+                coalesce(c.collected, 0)::text as collected
+         from billed b
+         full outer join collected c on c.month = b.month
+         order by month`,
+        [String(months)],
+      );
+      return rows;
+    });
+  }
+
+  /** Worker productivity: completed tasks, avg minutes, total cost (SPEC §22.1). */
+  async workerProductivity(tenantId: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query(
+        `select
+           w.id as worker_id,
+           w.full_name,
+           count(t.id) filter (where t.status = 'done') as completed,
+           count(t.id) filter (where t.status not in ('done','cancelled')) as open,
+           coalesce(round(avg(t.time_spent_minutes) filter (where t.status = 'done')), 0) as avg_minutes,
+           coalesce(sum(t.cost_amount) filter (where t.status = 'done'), 0)::text as total_cost
+         from maintenance_workers w
+         left join tasks t on t.assigned_worker_id = w.id and t.tenant_id = w.tenant_id
+         where w.status = 'active'
+         group by w.id, w.full_name
+         order by completed desc`,
+      );
+      return rows;
+    });
+  }
+
+  /** Addon revenue + commission owed (SPEC §19.3 / §22.2). */
+  async addonRevenue(tenantId: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query(
+        `select
+           pr.name as product_name,
+           count(o.id) as orders,
+           coalesce(sum(o.total), 0)::text as revenue,
+           coalesce(round(sum(o.total * pr.commission_pct / 100.0), 2), 0)::text as commission
+         from addon_orders o
+         join addon_products pr on pr.id = o.product_id
+         where o.fulfillment_status <> 'cancelled'
+         group by pr.name
+         order by revenue::numeric desc`,
+      );
+      return rows;
+    });
+  }
+
+  /**
+   * Serialize report rows to CSV with a UTF-8 BOM so Excel renders Hebrew
+   * correctly (SPEC §22.4). Columns are inferred from the first row.
+   */
+  toCsv(rows: Array<Record<string, unknown>>): string {
+    if (rows.length === 0) return '﻿';
+    const cols = Object.keys(rows[0]!);
+    const escape = (v: unknown) => {
+      const s = v === null || v === undefined ? '' : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = cols.join(',');
+    const body = rows.map((r) => cols.map((col) => escape(r[col])).join(',')).join('\n');
+    return `﻿${header}\n${body}`;
+  }
 }
