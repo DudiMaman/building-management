@@ -91,7 +91,7 @@ export class InvoicingService {
     return upload.file_id;
   }
 
-  async issue(tenantId: string, actorUserId: string, input: IssueInvoice): Promise<Invoice> {
+  async issue(tenantId: string, actorUserId: string | null, input: IssueInvoice): Promise<Invoice> {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
       // Compute totals
       let subtotal = 0;
@@ -226,6 +226,76 @@ export class InvoicingService {
         this.logger.error(`Invoice PDF render failed for ${invoice.id}: ${(err as Error).message}`);
       }
       return invoice;
+    });
+  }
+
+  /**
+   * Auto-issue a tax receipt for a captured payment (SPEC §37.3).
+   *
+   * Idempotent: returns the existing invoice if one already references the
+   * payment. Returns null (a no-op) when prerequisites aren't configured — no
+   * receipt/tax-receipt series for the tenant, or no resolvable customer — so
+   * the payment-capture path never fails on a missing tax setup. The series'
+   * document type drives VAT: tax_invoice_receipt → 17%, plain receipt → 0%.
+   */
+  async issueReceiptForPayment(tenantId: string, paymentId: string): Promise<Invoice | null> {
+    const payRes = await this.db.query<{
+      amount: string;
+      paid_by_person_id: string | null;
+      charge_id: string;
+      charge_description: string | null;
+      billed_to_person_id: string | null;
+    }>(
+      `select p.amount, p.paid_by_person_id, p.charge_id,
+              c.description as charge_description, c.billed_to_person_id
+       from payments p join charges c on c.id = p.charge_id
+       where p.id = $1 and p.tenant_id = $2`,
+      [paymentId, tenantId],
+    );
+    const pay = payRes.rows[0];
+    if (!pay) return null;
+
+    const existing = await this.db.query<{ id: string }>(
+      `select id from invoices
+       where tenant_id = $1 and status <> 'cancelled' and $2 = any(related_payment_ids) limit 1`,
+      [tenantId, paymentId],
+    );
+    if (existing.rows.length > 0) {
+      this.logger.debug(`Receipt already issued for payment ${paymentId}`);
+      return null;
+    }
+
+    const seriesRes = await this.db.query<{ id: string; document_type: string }>(
+      `select id, document_type from invoice_series
+       where tenant_id = $1 and document_type in ('tax_invoice_receipt', 'receipt')
+       order by case document_type when 'tax_invoice_receipt' then 0 else 1 end
+       limit 1`,
+      [tenantId],
+    );
+    const series = seriesRes.rows[0];
+    if (!series) {
+      this.logger.warn(`No receipt series configured for tenant ${tenantId}; skipping auto-receipt`);
+      return null;
+    }
+
+    const customer = pay.paid_by_person_id ?? pay.billed_to_person_id;
+    if (!customer) {
+      this.logger.warn(`No customer for payment ${paymentId}; skipping auto-receipt`);
+      return null;
+    }
+
+    const gross = Number(pay.amount);
+    const vatRate = series.document_type === 'tax_invoice_receipt' ? 17 : 0;
+    const unitPrice = vatRate > 0 ? Math.round((gross / (1 + vatRate / 100)) * 100) / 100 : gross;
+    const description = pay.charge_description ?? 'תשלום';
+
+    return this.issue(tenantId, null, {
+      series_id: series.id,
+      customer_person_id: customer,
+      charge_ids: [pay.charge_id],
+      payment_ids: [paymentId],
+      description: `קבלה עבור ${description}`,
+      line_items: [{ description, quantity: 1, unit_price: unitPrice, vat_rate_pct: vatRate }],
     });
   }
 

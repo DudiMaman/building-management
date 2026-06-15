@@ -2,6 +2,8 @@ import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenEx
 import { randomUUID } from 'node:crypto';
 import { DbService } from '../../db/db.service';
 import { TranzilaAdapter, type IframeSession } from './tranzila.adapter';
+import { InvoicingService } from '../invoicing/invoicing.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import type { CreatePayment } from '@bm/shared';
 import type { Charge, Payment, PaymentMethod } from '@bm/db';
 
@@ -12,7 +14,92 @@ export class PaymentsService {
   constructor(
     private readonly db: DbService,
     private readonly tranzila: TranzilaAdapter,
+    private readonly invoicing: InvoicingService,
+    private readonly notifications: NotificationsService,
   ) {}
+
+  /**
+   * Apply a payment-provider (Tranzila) result, identified by its transaction
+   * id. This is the single source of truth for capture side effects and is
+   * idempotent — a replayed webhook that finds the payment already in the
+   * target state is a no-op (so a receipt is never issued twice). On first
+   * capture it: marks the payment captured, advances the charge's paid amount
+   * /status, sends a receipt notification, and best-effort auto-issues a tax
+   * receipt (see InvoicingService.issueReceiptForPayment + ADR-001).
+   */
+  async handleProviderResult(
+    txnId: string,
+    status: 'captured' | 'failed',
+    raw: Record<string, unknown>,
+  ): Promise<{ ok: boolean; duplicate?: boolean }> {
+    const found = await this.db.query<{
+      id: string;
+      tenant_id: string;
+      charge_id: string;
+      amount: string;
+      status: string;
+      apartment_id: string | null;
+    }>(
+      `select p.id, p.tenant_id, p.charge_id, p.amount, p.status, c.apartment_id
+       from payments p join charges c on c.id = p.charge_id
+       where p.tranzila_txn_id = $1`,
+      [txnId],
+    );
+    const payment = found.rows[0];
+    if (!payment) {
+      this.logger.warn(`Tranzila result for unknown txn ${txnId}`);
+      return { ok: false };
+    }
+    if (payment.status === status || payment.status === 'captured') {
+      return { ok: true, duplicate: true };
+    }
+
+    await this.db.query(
+      `update payments
+       set status = $2,
+           captured_at = case when $2 = 'captured' then now() else captured_at end,
+           raw_provider_json = $3, updated_at = now()
+       where id = $1`,
+      [payment.id, status, JSON.stringify(raw)],
+    );
+
+    if (status !== 'captured') {
+      return { ok: true };
+    }
+
+    // Advance the charge's paid amount / status.
+    await this.db.query(
+      `update charges
+       set paid_amount = paid_amount + $2,
+           status = case when paid_amount + $2 >= amount then 'paid' else 'partial' end,
+           updated_at = now()
+       where id = $1`,
+      [payment.charge_id, payment.amount],
+    );
+
+    // Notify (best-effort) and auto-issue a receipt (best-effort).
+    if (payment.apartment_id) {
+      try {
+        await this.notifications.notifyApartment(
+          payment.tenant_id,
+          payment.apartment_id,
+          'payment_receipt',
+          'invoice_issued',
+          { doc_type: 'קבלה', number: '', amount: String(payment.amount), url: '' },
+          { event_key: `receipt:${payment.id}` },
+        );
+      } catch (err) {
+        this.logger.warn(`Receipt notify failed for payment ${payment.id}: ${(err as Error).message}`);
+      }
+    }
+    try {
+      await this.invoicing.issueReceiptForPayment(payment.tenant_id, payment.id);
+    } catch (err) {
+      this.logger.error(`Auto-receipt failed for payment ${payment.id}: ${(err as Error).message}`);
+    }
+
+    return { ok: true };
+  }
 
   /**
    * Resident-initiated payment of a charge.

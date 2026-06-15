@@ -1,11 +1,13 @@
 import { Body, Controller, Headers, Logger, Post, RawBodyRequest, Req } from '@nestjs/common';
 import { TranzilaAdapter } from './tranzila.adapter';
+import { PaymentsService } from './payments.service';
 import { Public } from '../auth/public.decorator';
-import { DbService } from '../../db/db.service';
 
 /**
  * Tranzila notify webhook. Tranzila sends a POST with form-encoded body
- * containing transaction details. Idempotency via tranzila_txn_id.
+ * containing transaction details. Signature-verified and idempotent — the
+ * actual side effects (capture, charge update, receipt) live in
+ * PaymentsService.handleProviderResult so replays are safe.
  */
 @Controller('webhooks/tranzila')
 export class TranzilaWebhookController {
@@ -13,7 +15,7 @@ export class TranzilaWebhookController {
 
   constructor(
     private readonly tranzila: TranzilaAdapter,
-    private readonly db: DbService,
+    private readonly payments: PaymentsService,
   ) {}
 
   @Public()
@@ -36,12 +38,11 @@ export class TranzilaWebhookController {
       return { ok: false };
     }
 
-    await this.db.query(
-      `update payments set status = $2, captured_at = case when $2 = 'captured' then now() else captured_at end,
-                            raw_provider_json = $3
-       where tranzila_txn_id = $1`,
-      [txnId, status, JSON.stringify(body)],
-    );
+    try {
+      await this.payments.handleProviderResult(txnId, status, body);
+    } catch (err) {
+      this.logger.error(`Tranzila webhook processing failed: ${(err as Error).message}`);
+    }
     return { ok: true };
   }
 }

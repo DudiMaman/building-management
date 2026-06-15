@@ -4,8 +4,11 @@ import { PaymentsService } from './payments.service';
 import { TranzilaAdapter } from './tranzila.adapter';
 import { TranzilaMockAdapter } from './tranzila.mock';
 import { TranzilaWebhookController } from './tranzila.webhook';
+import { InvoicingModule } from '../invoicing/invoicing.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
+  imports: [InvoicingModule, NotificationsModule],
   controllers: [PaymentsController, TranzilaWebhookController],
   providers: [
     PaymentsService,
