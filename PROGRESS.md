@@ -90,10 +90,25 @@ Also closed (round 4 — admin web wiring):
   notifications. Only **ai-bot tuning** stays a placeholder (needs the
   §14.8 per-tenant tuning backend — a real feature, not just wiring).
 
-Remaining (need the user present OR external services):
-- **Mobile apps** (resident + maintenance): need Expo runtime to verify —
-  best done with the user able to run & review the UI.
-- AI-bot tuning backend + page (§14.8).
+Also closed (round 5 — full app + cross-cutting):
+- **Resident mobile app**: Home/Charges/Tickets/Bulletin wired to new
+  /me/home·/me/charges·/me/tickets·/bulletin; ticket-new submits to /tickets.
+- **Maintenance app**: Today screen wired to /workers/me/today + start/done
+  status actions.
+- **AI-bot tuning §14.8**: per-tenant tone + rules (tenants.settings.bot),
+  injected into the prompt; admin tuning page (last ComingSoon removed).
+- **Observability §27**: global exception filter + optional Sentry capture
+  (dynamic import, no hard dep).
+- **Auth §5.1-5.2**: Supabase custom-access-token hook migration (0015)
+  injecting tenant_id/role/person_id into the JWT.
+
+Genuinely remaining (need external deps/keys, or large low-value refactor):
+- **Map §23** — Mapbox/MapLibre dep + token.
+- **pgvector RAG §14.4** — OpenAI SDK + key (schema + code path ready;
+  retrieval currently FTS).
+- **i18n full wiring §28** — large refactor; apps work in Hebrew today.
+- **Mobile apps need Expo runtime verification** (typecheck-clean here, not
+  visually run). Photo upload in ticket-new (needs Files upload wiring).
 - External-service items: Sentry/metrics (§27, needs DSN+SDK dep), pgvector
   embeddings RAG (§14.4, OpenAI key), JWT custom-claims hook (§5.1-5.2,
   Supabase project), admin Map (§23, Mapbox).
