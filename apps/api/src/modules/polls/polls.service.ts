@@ -1,5 +1,6 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
+import { AuditService } from '../audit/audit.service';
 import { createHmac } from 'node:crypto';
 import {
   verifyVoteSignature,
@@ -10,7 +11,12 @@ import type { CreatePoll } from '@bm/shared';
 
 @Injectable()
 export class PollsService {
-  constructor(private readonly db: DbService) {}
+  private readonly logger = new Logger(PollsService.name);
+
+  constructor(
+    private readonly db: DbService,
+    private readonly audit: AuditService,
+  ) {}
 
   async create(tenantId: string, authorUserId: string, input: CreatePoll) {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
@@ -47,7 +53,7 @@ export class PollsService {
     choice: unknown,
     signature?: VoteSignaturePayload,
   ) {
-    return this.db.withTenantContext({ tenant_id: tenantId, role: 'resident' }, async (c) => {
+    const vote = await this.db.withTenantContext({ tenant_id: tenantId, role: 'resident' }, async (c) => {
       // Eligibility check
       const pollRes = await c.query<{ eligibility: string; anonymous: boolean; requires_signature: boolean }>(
         `select eligibility, anonymous, requires_signature
@@ -116,6 +122,24 @@ export class PollsService {
       );
       return rows[0];
     });
+
+    // Tamper-evident vote record in the hash-chained audit log (SPEC §16.5).
+    // Anonymity-preserving: never stores person_id for anonymous polls.
+    if (vote) {
+      try {
+        await this.audit.log({
+          tenant_id: tenantId,
+          actor_type: 'resident',
+          action: 'poll.vote',
+          entity_type: 'poll_vote',
+          entity_id: pollId,
+          after: { vote_id: (vote as { id: string }).id, anonymous: !!(vote as { person_id_hash?: string }).person_id_hash },
+        });
+      } catch (err) {
+        this.logger.warn(`Vote audit log failed: ${(err as Error).message}`);
+      }
+    }
+    return vote;
   }
 
   async results(tenantId: string, pollId: string) {
