@@ -84,7 +84,7 @@ const PULSE_GROUP = (
       stroke={SPARK}
       strokeWidth="3.2"
       pathLength={100}
-      strokeDasharray="16 100"
+      strokeDasharray="16 240"
     />
   </g>
 );

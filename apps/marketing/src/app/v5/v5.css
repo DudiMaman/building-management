@@ -310,15 +310,20 @@
 .v5 .lt-feed-in { animation: v5-feed-in 340ms cubic-bezier(0.16, 1, 0.3, 1); }
 
 /* ---------- Logo: gentle highlight drifting along the pulse trace ---------- */
-/* The path uses pathLength=100 with a 16/100 dash, so one short segment is
-   visible at a time; sweeping the dash offset across one full period (116)
-   glides that segment along the heartbeat and loops seamlessly. */
+/* pathLength=100 with a 16/240 dash → only one short segment is ever on
+   the path. Each beat: fade in at the left, sweep fast to the right and
+   off the end, fade out, then a short rest before the next beat. The
+   highlight runs 5 times then stops (fill: forwards holds the final,
+   invisible frame so only the static brass line remains). */
 @keyframes v5-pulse-spark {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: -116; }
+  0%   { stroke-dashoffset: 0;    opacity: 0; }
+  8%   { opacity: 1; }
+  42%  { stroke-dashoffset: -120; opacity: 1; }
+  50%  { stroke-dashoffset: -120; opacity: 0; }
+  100% { stroke-dashoffset: -120; opacity: 0; }
 }
 .v5 .pulse-spark {
-  animation: v5-pulse-spark 2s linear infinite;
+  animation: v5-pulse-spark 1s linear 5 forwards;
 }
 
 /* ---------- Reduced motion: show everything, stop everything ---------- */
