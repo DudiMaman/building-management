@@ -6,12 +6,19 @@
  * See SPEC §14.
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { complete, CUSTOMER_SERVICE_PROMPT_V1, ALL_BOT_TOOLS, type PromptContext } from '@bm/ai';
+import { completeWithTools, CUSTOMER_SERVICE_PROMPT_V1, ALL_BOT_TOOLS, type PromptContext } from '@bm/ai';
 import { DbService } from '../../db/db.service';
 import { AssignmentService } from '../apartments/assignment.service';
 import { TicketsService } from '../tickets/tickets.service';
 import { KbService } from '../kb/kb.service';
 import type { Message } from '@bm/db';
+
+interface BotContext {
+  promptCtx: PromptContext;
+  personId?: string;
+  buildingId?: string;
+  apartmentId?: string;
+}
 
 @Injectable()
 export class AiBotService {
@@ -36,77 +43,101 @@ export class AiBotService {
     // Load context: conversation + person info
     const ctx = await this.loadContext(tenantId, conversationId);
     const systemPrompt = CUSTOMER_SERVICE_PROMPT_V1(ctx.promptCtx);
-    const recentMessages = await this.loadRecentMessages(conversationId);
 
-    // First call
+    // No API key → deterministic mock so the platform runs without credentials.
     if (!process.env.ANTHROPIC_API_KEY) {
-      // Mock: simple keyword routing
       return this.mockRespond(userText, ctx.promptCtx);
     }
 
-    const result = await complete({
+    // Build the message history. The current user turn may already be the most
+    // recent stored message (WhatsApp flow persists inbound before replying);
+    // only append it when it isn't already there to avoid duplicating it.
+    const recentMessages = await this.loadRecentMessages(conversationId);
+    const history = recentMessages.map((m) => ({
+      role: (m.direction === 'in' ? 'user' : 'assistant') as 'user' | 'assistant',
+      content: m.body ?? '',
+    }));
+    const last = history[history.length - 1];
+    if (!(last && last.role === 'user' && last.content === userText)) {
+      history.push({ role: 'user', content: userText });
+    }
+
+    const { reply, toolsUsed, escalated } = await completeWithTools({
       systemPrompt,
-      messages: [
-        ...recentMessages.map((m) => ({
-          role: (m.direction === 'in' ? 'user' : 'assistant') as 'user' | 'assistant',
-          content: m.body ?? '',
-        })),
-        { role: 'user', content: userText },
-      ],
+      messages: history,
       tools: ALL_BOT_TOOLS,
+      executeTool: (name, input) => this.executeTool(tenantId, ctx, name, input),
     });
 
-    // Walk tool calls (simplified: not looping for brevity in skeleton)
-    const toolsUsed: string[] = [];
-    let escalated = false;
-    let replyText = '';
-    for (const block of result.content) {
-      if (block.type === 'text') {
-        replyText += block.text;
-      } else if (block.type === 'tool_use') {
-        toolsUsed.push(block.name);
-        if (block.name === 'escalate_to_human') escalated = true;
-        await this.executeTool(tenantId, ctx, block.name, block.input as any);
-      }
-    }
-    if (!replyText) replyText = 'אני אשמח לעזור — תוכלו לפרט יותר?';
-
-    return { reply: replyText, escalated, tools_used: toolsUsed };
+    return {
+      reply: reply || 'אני אשמח לעזור — תוכלו לפרט יותר?',
+      escalated,
+      tools_used: toolsUsed,
+    };
   }
 
   private async executeTool(
     tenantId: string,
-    ctx: { promptCtx: PromptContext; personId?: string },
+    ctx: BotContext,
     name: string,
     input: Record<string, any>,
   ) {
     switch (name) {
       case 'lookup_balance':
         return this.lookupBalance(tenantId, input.person_id ?? ctx.personId);
-      case 'create_ticket':
+      case 'lookup_ticket':
+        return this.lookupTicket(tenantId, input.ticket_id);
+      case 'create_ticket': {
+        const buildingId = input.building_id ?? ctx.buildingId;
+        if (!buildingId) {
+          return { error: 'missing_building', message: 'לא ניתן לפתוח פנייה ללא שיוך לבניין.' };
+        }
         return this.tickets.create(tenantId, input.person_id ?? ctx.personId ?? null, {
-          building_id: input.building_id ?? '',
-          apartment_id: input.apartment_id,
+          building_id: buildingId,
+          apartment_id: input.apartment_id ?? ctx.apartmentId,
           title: input.title,
           description: input.description,
-          category: input.category,
-          priority: input.priority,
+          category: input.category ?? 'other',
+          priority: input.priority ?? 'med',
           photos: input.photos ?? [],
         });
-      case 'who_is_my_bill_payer':
-        return this.assignments.listCurrent(tenantId, input.apartment_id);
-      case 'search_kb': {
-        const hits = await this.kb.search(tenantId, String(input.query ?? ''), Number(input.limit ?? 5));
-        return hits.map((h) => ({
-          document: h.document_title,
-          content: h.content,
-          rank: h.rank,
-        }));
       }
-      // Other tools: noop in skeleton
+      case 'schedule_callback': {
+        const buildingId = input.building_id ?? ctx.buildingId;
+        if (!buildingId) {
+          return { error: 'missing_building', message: 'נא לציין בניין כדי לתאם חזרה.' };
+        }
+        return this.tickets.create(tenantId, input.person_id ?? ctx.personId ?? null, {
+          building_id: buildingId,
+          apartment_id: ctx.apartmentId,
+          title: 'בקשת חזרה טלפונית',
+          description: `הפונה ביקש שיחזרו אליו. מועד מבוקש: ${input.when ?? 'בהקדם'}. סיבה: ${input.reason ?? '—'}`,
+          category: 'other',
+          priority: 'med',
+          photos: [],
+        });
+      }
+      case 'who_is_my_bill_payer':
+        return this.assignments.listCurrent(tenantId, input.apartment_id ?? ctx.apartmentId);
+      case 'building_info':
+      case 'search_kb': {
+        const q = String(input.query ?? input.key ?? '');
+        const hits = await this.kb.search(tenantId, q, Number(input.limit ?? 5));
+        return hits.map((h) => ({ document: h.document_title, content: h.content, rank: h.rank }));
+      }
       default:
-        return { ok: true };
+        return { ok: false, error: `unknown_tool:${name}` };
     }
+  }
+
+  private async lookupTicket(tenantId: string, ticketId?: string) {
+    if (!ticketId) return { error: 'missing_ticket_id' };
+    const { rows } = await this.db.query(
+      `select id, title, status, priority, category, opened_at, resolved_at, closed_at
+       from service_tickets where tenant_id = $1 and id = $2`,
+      [tenantId, ticketId],
+    );
+    return rows[0] ?? { error: 'ticket_not_found' };
   }
 
   private async lookupBalance(tenantId: string, personId?: string) {
@@ -122,20 +153,19 @@ export class AiBotService {
     return rows;
   }
 
-  private async loadContext(tenantId: string, conversationId: string): Promise<{
-    promptCtx: PromptContext;
-    personId?: string;
-  }> {
+  private async loadContext(tenantId: string, conversationId: string): Promise<BotContext> {
     const { rows } = await this.db.query<{
       tenant_name: string;
       person_id: string | null;
       full_name: string | null;
       building_id: string | null;
       building_name: string | null;
+      apartment_id: string | null;
       apartment_unit: string | null;
     }>(
       `select t.name as tenant_name, c.person_id, p.full_name,
-              c.building_id, b.name as building_name, a.unit_number as apartment_unit
+              c.building_id, b.name as building_name,
+              c.apartment_id, a.unit_number as apartment_unit
        from conversations c
        join tenants t on t.id = c.tenant_id
        left join people p on p.id = c.person_id
@@ -147,6 +177,8 @@ export class AiBotService {
     const r = rows[0];
     return {
       personId: r?.person_id ?? undefined,
+      buildingId: r?.building_id ?? undefined,
+      apartmentId: r?.apartment_id ?? undefined,
       promptCtx: {
         tenant_name: r?.tenant_name ?? '',
         building_name: r?.building_name ?? undefined,

@@ -3,16 +3,21 @@
  * See SPEC §13.
  */
 import { Injectable, Logger } from '@nestjs/common';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import axios from 'axios';
 import { DbService } from '../../db/db.service';
 import { findTemplate } from '@bm/shared';
+import { AiBotService } from '../ai-bot/ai-bot.service';
 
 @Injectable()
 export class WhatsAppService {
   private readonly logger = new Logger(WhatsAppService.name);
   private readonly baseUrl = 'https://graph.facebook.com/v21.0';
 
-  constructor(private readonly db: DbService) {}
+  constructor(
+    private readonly db: DbService,
+    private readonly bot: AiBotService,
+  ) {}
 
   async sendText(toE164: string, body: string): Promise<string | undefined> {
     if (process.env.WHATSAPP_MODE === 'mock' || !process.env.WHATSAPP_PHONE_NUMBER_ID) {
@@ -99,14 +104,16 @@ export class WhatsAppService {
 
       // Find/create conversation
       let convId: string;
-      const convRes = await this.db.query<{ id: string }>(
-        `select id from conversations
+      let convStatus: string;
+      const convRes = await this.db.query<{ id: string; status: string }>(
+        `select id, status from conversations
          where tenant_id = $1 and channel = 'whatsapp' and whatsapp_phone_e164 = $2
            and status <> 'closed' limit 1`,
         [tenantId, from],
       );
       if (convRes.rows.length > 0) {
         convId = convRes.rows[0]!.id;
+        convStatus = convRes.rows[0]!.status;
       } else {
         const ins = await this.db.query<{ id: string }>(
           `insert into conversations (tenant_id, person_id, channel, status, whatsapp_phone_e164, last_message_at)
@@ -114,15 +121,70 @@ export class WhatsAppService {
           [tenantId, personId ?? null, from],
         );
         convId = ins.rows[0]!.id;
+        convStatus = 'pending_bot';
       }
 
-      await this.db.query(
+      // Persist inbound. The unique index on whatsapp_message_id makes this
+      // idempotent: a webhook retry inserts 0 rows, so we skip re-replying.
+      const msgIns = await this.db.query(
         `insert into messages (tenant_id, conversation_id, direction, sender_type, body, whatsapp_message_id, status, created_at)
          values ($1, $2, 'in', 'resident', $3, $4, 'delivered', now())
-         on conflict do nothing`,
+         on conflict do nothing
+         returning id`,
         [tenantId, convId, body ?? '', wamid],
       );
+      if (msgIns.rowCount === 0) continue;
+
+      await this.db.query(`update conversations set last_message_at = now() where id = $1`, [convId]);
+
+      // Auto-reply only while the bot owns the conversation. Once escalated to
+      // a human (status = pending_human), inbound messages just queue silently.
+      if (convStatus === 'pending_bot' && body) {
+        await this.handleBotTurn(tenantId, convId, from, body);
+      }
     }
+  }
+
+  /**
+   * Run one bot turn for an inbound WhatsApp message: ask the bot, store the
+   * outbound message, send it via the Graph API, and escalate to a human when
+   * the bot decides to. Never throws — webhook delivery must always 200.
+   */
+  private async handleBotTurn(tenantId: string, convId: string, toE164: string, body: string) {
+    try {
+      const { reply, escalated } = await this.bot.respond(tenantId, convId, body);
+
+      const wamid = await this.sendText(toE164, reply);
+      await this.db.query(
+        `insert into messages (tenant_id, conversation_id, direction, sender_type, body, whatsapp_message_id, status, created_at)
+         values ($1, $2, 'out', 'bot', $3, $4, 'sent', now())`,
+        [tenantId, convId, reply, wamid ?? null],
+      );
+
+      await this.db.query(
+        `update conversations set status = $2, last_message_at = now() where id = $1`,
+        [convId, escalated ? 'pending_human' : 'pending_bot'],
+      );
+    } catch (err) {
+      this.logger.error(`Bot turn failed for conversation ${convId}: ${(err as Error).message}`);
+    }
+  }
+
+  /**
+   * Verify Meta's `x-hub-signature-256` HMAC over the raw request body.
+   * When `WHATSAPP_APP_SECRET` is unset (local/mock), verification is skipped.
+   */
+  verifySignature(rawBody: Buffer | undefined, signatureHeader?: string): boolean {
+    const secret = process.env.WHATSAPP_APP_SECRET;
+    if (!secret) {
+      this.logger.warn('WHATSAPP_APP_SECRET unset — skipping webhook signature check (dev mode)');
+      return true;
+    }
+    if (!rawBody || !signatureHeader?.startsWith('sha256=')) return false;
+    const expected = 'sha256=' + createHmac('sha256', secret).update(rawBody).digest('hex');
+    const a = Buffer.from(expected);
+    const b = Buffer.from(signatureHeader);
+    return a.length === b.length && timingSafeEqual(a, b);
   }
 
   verifyToken(query: { 'hub.mode'?: string; 'hub.challenge'?: string; 'hub.verify_token'?: string }) {

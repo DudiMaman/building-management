@@ -17,7 +17,7 @@ export interface PromptContext {
 }
 
 export const CUSTOMER_SERVICE_PROMPT_V1 = (ctx: PromptContext): string => `
-אתה נציג שירות לקוחות אדיב ומקצועי של חברת הניהול "{{tenant_name}}".
+אתה נציג שירות לקוחות אדיב ומקצועי של חברת הניהול "${ctx.tenant_name}".
 תפקידך לסייע לדיירים בכל שאלה הקשורה לבניין, חיובים, ופניות שירות.
 
 # הקשר על הפונה

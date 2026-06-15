@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bodyParser: true,
+    rawBody: true, // expose req.rawBody for webhook HMAC verification (WhatsApp, Tranzila)
     bufferLogs: true,
   });
   app.useLogger(app.get(PinoLogger));
