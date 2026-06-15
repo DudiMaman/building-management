@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 import { HealthController } from './health.controller';
 import { AuditInterceptor } from './modules/audit/audit.interceptor';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import { DbModule } from './db/db.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TenantsModule } from './modules/tenants/tenants.module';
@@ -107,6 +108,8 @@ import { ResidentModule } from './modules/resident/resident.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     // Append-only audit trail on every authenticated mutation (SPEC §24.1).
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    // Consistent error logging + Sentry capture (SPEC §27).
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
 })
 export class AppModule {}

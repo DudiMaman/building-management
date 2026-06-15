@@ -4,8 +4,10 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import { initSentry } from './common/sentry';
 
 async function bootstrap() {
+  await initSentry();
   const app = await NestFactory.create(AppModule, {
     bodyParser: true,
     rawBody: true, // expose req.rawBody for webhook HMAC verification (WhatsApp, Tranzila)
