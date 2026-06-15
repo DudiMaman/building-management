@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 import { HealthController } from './health.controller';
+import { AuditInterceptor } from './modules/audit/audit.interceptor';
 import { DbModule } from './db/db.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TenantsModule } from './modules/tenants/tenants.module';
@@ -93,5 +95,12 @@ import { KbModule } from './modules/kb/kb.module';
     KbModule,
   ],
   controllers: [HealthController],
+  providers: [
+    // Activate the configured rate limiter (SPEC §25.6). In-memory by default;
+    // swap to a Redis store for multi-instance deploys.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // Append-only audit trail on every authenticated mutation (SPEC §24.1).
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+  ],
 })
 export class AppModule {}
