@@ -56,6 +56,22 @@ export const TEMPLATES: NotificationTemplate[] = [
     meta_template_name: 'charge_overdue_owner_copy_he',
     meta_template_lang: 'he',
   },
+  // ---- Bulletin (new post) ----
+  {
+    key: 'bulletin_new',
+    channel: 'push',
+    locale: 'he',
+    subject: 'הודעה חדשה בלוח',
+    body: '{{title}}',
+  },
+  {
+    key: 'bulletin_new',
+    channel: 'whatsapp',
+    locale: 'he',
+    body: 'הודעה חדשה מהוועד: {{title}}',
+    meta_template_name: 'bulletin_new_he',
+    meta_template_lang: 'he',
+  },
   // ---- Welcome ----
   {
     key: 'welcome',

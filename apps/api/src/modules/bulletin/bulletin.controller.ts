@@ -17,6 +17,11 @@ export class BulletinController {
 
   @Get()
   list(@Req() req: AuthenticatedRequest, @Query('building_id') buildingId: string) {
+    // Residents get the audience-filtered view; staff get everything.
+    if (req.claims.role === 'resident') {
+      if (!req.claims.person_id) throw new ForbiddenException();
+      return this.bulletin.listForResident(req.claims.tenant_id, req.claims.person_id, buildingId);
+    }
     return this.bulletin.listForBuilding(req.claims.tenant_id, buildingId);
   }
 
