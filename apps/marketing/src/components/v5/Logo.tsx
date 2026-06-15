@@ -24,8 +24,9 @@ import React from 'react';
 
 const INK = '#1c1917';
 const BRASS = '#a16207';
-/** A lighter brass for the drifting highlight on the pulse trace. */
-const SPARK = '#d4a017';
+/** A bright gold for the drifting highlight on the pulse trace — kept
+ *  light enough to read clearly against the darker brass base line. */
+const SPARK = '#fbbf24';
 
 const TOWER_PATHS = (
   <g fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -81,9 +82,9 @@ const PULSE_GROUP = (
       className="pulse-spark"
       d={PULSE_D}
       stroke={SPARK}
-      strokeWidth="2.6"
+      strokeWidth="3.2"
       pathLength={100}
-      strokeDasharray="12 100"
+      strokeDasharray="16 100"
     />
   </g>
 );

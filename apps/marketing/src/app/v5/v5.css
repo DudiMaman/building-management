@@ -310,15 +310,15 @@
 .v5 .lt-feed-in { animation: v5-feed-in 340ms cubic-bezier(0.16, 1, 0.3, 1); }
 
 /* ---------- Logo: gentle highlight drifting along the pulse trace ---------- */
-/* The path uses pathLength=100 with a 12/100 dash, so one short segment is
-   visible at a time; sweeping the dash offset across one full period (112)
+/* The path uses pathLength=100 with a 16/100 dash, so one short segment is
+   visible at a time; sweeping the dash offset across one full period (116)
    glides that segment along the heartbeat and loops seamlessly. */
 @keyframes v5-pulse-spark {
   from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: -112; }
+  to { stroke-dashoffset: -116; }
 }
 .v5 .pulse-spark {
-  animation: v5-pulse-spark 4s linear infinite;
+  animation: v5-pulse-spark 2s linear infinite;
 }
 
 /* ---------- Reduced motion: show everything, stop everything ---------- */
