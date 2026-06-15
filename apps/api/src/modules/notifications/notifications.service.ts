@@ -130,6 +130,21 @@ export class NotificationsService {
     }
   }
 
+  /** Recent notification rows for the tenant (admin delivery log). */
+  async listRecent(tenantId: string, limit = 100) {
+    const { rows } = await this.db.query(
+      `select n.id, n.channel, n.template_key, n.status, n.provider_message_id,
+              n.sent_at, n.created_at, p.full_name as recipient_name
+       from notifications n
+       left join people p on p.id = n.recipient_person_id
+       where n.tenant_id = $1
+       order by n.created_at desc
+       limit $2`,
+      [tenantId, limit],
+    );
+    return rows;
+  }
+
   // ---- Layer 2: a person across their preferred channels -------------------
 
   /**
