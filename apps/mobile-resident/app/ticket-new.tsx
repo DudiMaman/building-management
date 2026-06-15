@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { api, useApi } from './lib/api';
+
+interface Home { building_id: string | null; apartment_id: string | null }
 
 const CATEGORIES = [
   { v: 'plumbing', l: 'אינסטלציה' },
@@ -19,6 +22,8 @@ export default function NewTicketScreen() {
   const [desc, setDesc] = useState('');
   const [category, setCategory] = useState('other');
   const [photos, setPhotos] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const { data: home } = useApi<Home>('/me/home');
 
   async function pickImage() {
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -31,8 +36,35 @@ export default function NewTicketScreen() {
   }
 
   async function submit() {
-    Alert.alert('הפנייה נשלחה', 'נחזור אליכם בהקדם.');
-    router.back();
+    if (!title.trim()) {
+      Alert.alert('חסר מידע', 'נא להזין כותרת.');
+      return;
+    }
+    if (!home?.building_id) {
+      Alert.alert('שגיאה', 'לא נמצא שיוך לבניין.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await api('/tickets', {
+        method: 'POST',
+        body: {
+          building_id: home.building_id,
+          apartment_id: home.apartment_id ?? undefined,
+          title: title.trim(),
+          description: desc.trim() || undefined,
+          category,
+          priority: 'med',
+          photos: [],
+        },
+      });
+      Alert.alert('הפנייה נשלחה', 'נחזור אליכם בהקדם.');
+      router.back();
+    } catch (e) {
+      Alert.alert('שגיאה', 'שליחת הפנייה נכשלה. נסו שוב.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -74,8 +106,8 @@ export default function NewTicketScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submit} onPress={submit}>
-        <Text style={styles.submitText}>שליחת פנייה</Text>
+      <TouchableOpacity style={[styles.submit, submitting && { opacity: 0.6 }]} onPress={submit} disabled={submitting}>
+        <Text style={styles.submitText}>{submitting ? 'שולח…' : 'שליחת פנייה'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
