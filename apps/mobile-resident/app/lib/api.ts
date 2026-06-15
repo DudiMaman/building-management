@@ -6,6 +6,7 @@
  * AsyncStorage where the Supabase client stashes it on sign-in.
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
 export const API_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -57,6 +58,38 @@ function safeJson(text: string): unknown {
   } catch {
     return text;
   }
+}
+
+/**
+ * Minimal data-fetching hook (avoids adding SWR/react-query to the app).
+ * Re-fetches when `path` changes; pass null to skip.
+ */
+export function useApi<T = unknown>(path: string | null): {
+  data: T | null;
+  error: Error | null;
+  loading: boolean;
+} {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState<boolean>(!!path);
+
+  useEffect(() => {
+    let active = true;
+    if (!path) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    api<T>(path)
+      .then((d) => active && (setData(d), setError(null)))
+      .catch((e) => active && setError(e as Error))
+      .finally(() => active && setLoading(false));
+    return () => {
+      active = false;
+    };
+  }, [path]);
+
+  return { data, error, loading };
 }
 
 // --- Payment helpers ---

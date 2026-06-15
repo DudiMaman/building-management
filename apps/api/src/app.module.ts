@@ -36,6 +36,7 @@ import { LeadsModule } from './modules/leads/leads.module';
 import { KbModule } from './modules/kb/kb.module';
 import { ComplianceModule } from './modules/compliance/compliance.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
+import { ResidentModule } from './modules/resident/resident.module';
 
 @Module({
   imports: [
@@ -97,6 +98,7 @@ import { InvitationsModule } from './modules/invitations/invitations.module';
     KbModule,
     ComplianceModule,
     InvitationsModule,
+    ResidentModule,
   ],
   controllers: [HealthController],
   providers: [
