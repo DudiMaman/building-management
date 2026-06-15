@@ -82,9 +82,18 @@ Also closed (round 3):
 - **Bulletin §15.2-15.3**: distribution fanout on publish + audience-filtered
   resident feed.
 
+Also closed (round 4 — admin web wiring):
+- Wired **all remaining admin pages** to live APIs: Documents (list + OCR
+  search + expiry), Checks (list + status filter + bounced badge), Polls,
+  WhatsApp inbox (conversations + thread), Notifications (delivery log +
+  template catalog). Added backend list endpoints for polls / whatsapp /
+  notifications. Only **ai-bot tuning** stays a placeholder (needs the
+  §14.8 per-tenant tuning backend — a real feature, not just wiring).
+
 Remaining (need the user present OR external services):
-- **Front-ends — the biggest remaining work** (admin pages, resident app,
-  maintenance app): best done with the user able to run & review the UI.
+- **Mobile apps** (resident + maintenance): need Expo runtime to verify —
+  best done with the user able to run & review the UI.
+- AI-bot tuning backend + page (§14.8).
 - External-service items: Sentry/metrics (§27, needs DSN+SDK dep), pgvector
   embeddings RAG (§14.4, OpenAI key), JWT custom-claims hook (§5.1-5.2,
   Supabase project), admin Map (§23, Mapbox).
