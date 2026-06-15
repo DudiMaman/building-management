@@ -79,6 +79,58 @@ export class TasksService {
     });
   }
 
+  /**
+   * Auto-assign a task to the best-fit worker (SPEC §17.3): prefer an active
+   * worker whose skills include the task category, breaking ties by the
+   * lightest current open-task load (round-robin). Falls back to any active
+   * worker when none has the skill. No-op if already assigned. Returns the
+   * updated task, or null when there are no workers.
+   */
+  async autoAssign(tenantId: string, taskId: string): Promise<Task | null> {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const taskRes = await c.query<{ category: string; assigned_worker_id: string | null }>(
+        `select category, assigned_worker_id from tasks where id = $1`,
+        [taskId],
+      );
+      if (taskRes.rows.length === 0) throw new NotFoundException();
+      const task = taskRes.rows[0]!;
+      if (task.assigned_worker_id) {
+        const cur = await c.query<Task>(`select * from tasks where id = $1`, [taskId]);
+        return cur.rows[0]!;
+      }
+
+      const pick = async (skillFilter: boolean) => {
+        const params: any[] = [tenantId];
+        let skillClause = '';
+        if (skillFilter) {
+          params.push(task.category);
+          skillClause = `and w.skills ? $${params.length}`;
+        }
+        const { rows } = await c.query<{ id: string }>(
+          `select w.id,
+                  count(tk.id) filter (where tk.status not in ('done', 'cancelled')) as load
+           from maintenance_workers w
+           left join tasks tk on tk.assigned_worker_id = w.id and tk.tenant_id = w.tenant_id
+           where w.tenant_id = $1 and w.status = 'active' ${skillClause}
+           group by w.id
+           order by load asc
+           limit 1`,
+          params,
+        );
+        return rows[0]?.id;
+      };
+
+      const workerId = (await pick(true)) ?? (await pick(false));
+      if (!workerId) return null;
+
+      const { rows } = await c.query<Task>(
+        `update tasks set assigned_worker_id = $2, updated_at = now() where id = $1 returning *`,
+        [taskId, workerId],
+      );
+      return rows[0]!;
+    });
+  }
+
   async assign(tenantId: string, id: string, workerId: string) {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
       const { rows } = await c.query<Task>(

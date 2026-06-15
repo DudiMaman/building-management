@@ -39,4 +39,10 @@ export class TasksController {
   ) {
     return this.tasks.assign(req.claims.tenant_id, id, body.worker_id);
   }
+
+  /** Auto-assign by skills + least load (SPEC §17.3). */
+  @Post(':id/auto-assign')
+  autoAssign(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.tasks.autoAssign(req.claims.tenant_id, id);
+  }
 }

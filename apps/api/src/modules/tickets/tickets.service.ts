@@ -1,12 +1,18 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { TasksService } from '../tasks/tasks.service';
 import { classifyTicket } from '@bm/ai';
 import type { CreateTicket } from '@bm/shared';
 import type { ServiceTicket } from '@bm/db';
 
 /** Default SLA resolution windows (hours) by priority — SPEC §18.5. */
 const SLA_HOURS: Record<string, number> = { urgent: 4, high: 24, med: 72, low: 168 };
+
+/** Categories that warrant a field task auto-created on intake (SPEC §17.1). */
+const FIELD_CATEGORIES = new Set([
+  'plumbing', 'electrical', 'elevator', 'hvac', 'common_area', 'cleaning', 'security', 'access',
+]);
 
 @Injectable()
 export class TicketsService {
@@ -15,6 +21,7 @@ export class TicketsService {
   constructor(
     private readonly db: DbService,
     private readonly notifications: NotificationsService,
+    private readonly tasks: TasksService,
   ) {}
 
   async create(tenantId: string, openedByPersonId: string | null, input: CreateTicket): Promise<ServiceTicket> {
@@ -29,7 +36,7 @@ export class TicketsService {
 
     const slaDueAt = new Date(Date.now() + (SLA_HOURS[priority] ?? 72) * 3600_000).toISOString();
 
-    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+    const ticket = await this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
       const { rows } = await c.query<ServiceTicket>(
         `insert into service_tickets
           (tenant_id, building_id, apartment_id, opened_by_person_id, intake_channel,
@@ -51,6 +58,28 @@ export class TicketsService {
       );
       return rows[0]!;
     });
+
+    // Reactive field task on triage for maintenance categories (SPEC §17.1),
+    // then auto-assign by skills/load. Best-effort — never fails the intake.
+    if (FIELD_CATEGORIES.has(category)) {
+      try {
+        const task = await this.tasks.create(tenantId, {
+          building_id: ticket.building_id,
+          apartment_id: ticket.apartment_id ?? undefined,
+          title: ticket.title,
+          description_md: ticket.description ?? undefined,
+          category,
+          priority,
+          source: 'ticket',
+          source_ticket_id: ticket.id,
+        });
+        await this.tasks.autoAssign(tenantId, task.id);
+      } catch (err) {
+        this.logger.warn(`Reactive task for ticket ${ticket.id} failed: ${(err as Error).message}`);
+      }
+    }
+
+    return ticket;
   }
 
   async list(tenantId: string, buildingId?: string, status?: string) {
