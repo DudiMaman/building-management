@@ -16,6 +16,43 @@ nothing falls between sessions.
 - 👤 **Merge `claude/great-rubin-CqWBX` → `main`** so the
   `deploy-marketing.yml` workflow takes over future redeploys.
 
+## ⚠️ Audit-verified status (2026-06-15)
+
+A full §-by-§ audit against `SPEC.md` was run on branch
+`claude/great-rubin-CqWBX`. **The milestone checklist below (M0–M6) is
+over-optimistic**: many items marked ✅ are in reality 🟡 skeletons or have
+material gaps. Use this section as the source of truth; the milestone list
+is being reconciled item-by-item as the gaps are closed.
+
+**Genuinely solid:** data model + schema + RLS (§3/§4), bill-payer
+resolution (§3.6.4, tested), gap-free invoice serials (§37.2), bounced-check
+charge reversal (§38.4), poll signatures + anonymity (§16), gate one-tap
+(§20), WhatsApp *outbound* (§13.3), core reports (§22.2), worker+cron infra
+(§26.4), Pino logging (§27), typecheck 16/16 + 37 tests green.
+
+**Skeleton / partial (looks done, isn't):** AI bot (single-turn, 3 no-op
+tools, prompt not interpolated), notifications engine (no policy fanout / no
+prefs / no WhatsApp branch / synchronous), audit hash-chain (no callers),
+RAG (FTS only, no pgvector), PDF (falls back to Helvetica without Heebo).
+
+**Missing:** WhatsApp inbound→bot routing (dead-ends at `pending_bot`),
+webhook HMAC, ticket SLA lifecycle, audit interceptor wiring, compliance
+endpoints (§24.2), document ACL/search/expiry-cron (§39), addon checkout
+(§19), recurring/reactive tasks (§17), admin Map (§23), Sentry/metrics
+(§27), active rate-limiting + PII encryption (§25), i18n wiring (§28).
+
+**Front-ends are thinner than reported:** maintenance app ≈ empty,
+resident app mostly un-wired mocks, several admin pages are placeholders.
+
+### Billing re-scoping — see [`docs/decisions.md`](./docs/decisions.md) ADR-001
+Billing **execution** (recurring/standing orders, card-side dunning/retries,
+debtor management, settlement) is **delegated to Tranzila** (acquirer: MAX).
+We do NOT build our own collection engine. Our job: the tax-invoice domain
+(§37), **full bidirectional Tranzila integration** (send charges / receive
+webhooks + statuses, HMAC-verified + idempotent), and reporting. SPEC §11.2
+cron-generation, §11.4 dunning-retries, §11.7 installment-split are therefore
+re-scoped from "custom build" to "Tranzila integration / pass-through".
+
 ## Status legend
 
 - ✅ Done & working
