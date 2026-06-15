@@ -44,6 +44,30 @@ endpoints (§24.2), document ACL/search/expiry-cron (§39), addon checkout
 **Front-ends are thinner than reported:** maintenance app ≈ empty,
 resident app mostly un-wired mocks, several admin pages are placeholders.
 
+### ✅ Closed this session (2026-06-15, branch great-rubin)
+Backend "make the skeletons real" pass — all typecheck 16/16, 41 tests green:
+- **WhatsApp ↔ AI bot end-to-end**: inbound routes to the bot and replies via
+  Graph API; real multi-turn Claude tool loop (`completeWithTools`); all 7
+  tools implemented; webhook HMAC (`x-hub-signature-256`); idempotent on
+  message id; prompt interpolation bug fixed.
+- **Audit log wired**: global `AuditInterceptor` records every authenticated
+  mutation into the hash chain (was zero callers). **Rate limiting activated**
+  (ThrottlerGuard).
+- **Notifications engine**: policy/preference fanout (`notifyApartment` via
+  §3.6.6 roles, `notifyPerson` via prefs), WhatsApp channel, rate limit, DST
+  DND, name personalization. Wired into **dunning** (overdue reminders) and
+  **bounced checks** (critical notice).
+- **Tranzila capture**: idempotent `handleProviderResult` → marks charge
+  paid/partial, notifies, **auto-issues a tax receipt** (§37.3); webhook
+  delegates to it (replay-safe).
+- **Tickets**: SLA window on intake (so reports breach-count works) +
+  satisfaction prompt on close; `findSlaBreaches()`.
+- **Compliance**: `GET /v1/me/export` + `DELETE /v1/me/erase` (§24.2).
+
+Still open (next): recurring/reactive tasks (§17), document ACL/expiry-cron/
+search (§39), invitation flow (§5.5), admin/resident/maintenance front-ends
+(biggest gap), map (§23), Sentry (§27), i18n wiring (§28), pgvector RAG.
+
 ### Billing re-scoping — see [`docs/decisions.md`](./docs/decisions.md) ADR-001
 Billing **execution** (recurring/standing orders, card-side dunning/retries,
 debtor management, settlement) is **delegated to Tranzila** (acquirer: MAX).
