@@ -32,6 +32,21 @@ export class DocumentsController {
     return this.docs.expiringSoon(req.claims.tenant_id, days ? Number(days) : 30);
   }
 
+  @Get('search')
+  search(
+    @Req() req: AuthenticatedRequest,
+    @Query('building_id') buildingId: string,
+    @Query('q') q: string,
+  ) {
+    return this.docs.search(req.claims.tenant_id, buildingId, q ?? '');
+  }
+
+  /** Run the expiry scan now → creates renewal tasks (also runs daily via cron). */
+  @Post('scan-expiries')
+  scanExpiries(@Req() req: AuthenticatedRequest) {
+    return this.docs.scanExpiries(req.claims.tenant_id);
+  }
+
   /** Manual re-run OCR + AI analysis on a specific version. */
   @Post('versions/:versionId/ocr')
   rerunOcr(@Req() req: AuthenticatedRequest, @Param('versionId') versionId: string) {

@@ -11,9 +11,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { QueuesModule } from './queues.module';
 import { BillingWorker } from './billing.worker';
 import { DunningWorker } from './dunning.worker';
+import { DocumentsWorker } from './documents.worker';
 import { SchedulerService } from './scheduler.service';
 import { DbModule } from '../db/db.module';
 import { BillingModule } from '../modules/billing/billing.module';
+import { DocumentsModule } from '../modules/documents/documents.module';
 
 @Module({
   imports: [
@@ -22,7 +24,8 @@ import { BillingModule } from '../modules/billing/billing.module';
     QueuesModule,
     DbModule,
     BillingModule,
+    DocumentsModule,
   ],
-  providers: [BillingWorker, DunningWorker, SchedulerService],
+  providers: [BillingWorker, DunningWorker, DocumentsWorker, SchedulerService],
 })
 export class QueueWorkersModule {}

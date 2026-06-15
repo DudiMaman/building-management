@@ -22,6 +22,7 @@ export class SchedulerService {
   constructor(
     @InjectQueue(QUEUE_NAMES.billing) private readonly billing: Queue,
     @InjectQueue(QUEUE_NAMES.dunning) private readonly dunning: Queue,
+    @InjectQueue(QUEUE_NAMES.documents) private readonly documents: Queue,
   ) {}
 
   /** 02:00 every day — generate the day's charges across all tenants. */
@@ -44,6 +45,17 @@ export class SchedulerService {
       { jobId: `dunning-${new Date().toISOString().slice(0, 10)}` },
     );
     this.logger.log('Enqueued dunning.run');
+  }
+
+  /** 04:00 every day — scan documents in their reminder window → renewal tasks. */
+  @Cron('0 4 * * *', { timeZone: TIMEZONE, name: 'documents.scan-expiries' })
+  async runDocumentExpiryScan() {
+    await this.documents.add(
+      'scan-expiries',
+      {},
+      { jobId: `doc-expiry-${new Date().toISOString().slice(0, 10)}` },
+    );
+    this.logger.log('Enqueued documents.scan-expiries');
   }
 
   /** On boot, log the upcoming schedule so ops can verify the worker is alive. */

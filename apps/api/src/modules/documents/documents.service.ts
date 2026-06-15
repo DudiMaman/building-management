@@ -154,11 +154,89 @@ export class DocumentsService {
         `select * from documents
          where status = 'active'
            and expires_at is not null
-           and expires_at - (reminder_lead_days || ' days')::interval <= current_date
+           and expires_at - (reminder_lead_days || ' days')::interval <= current_date + ($1 || ' days')::interval
            and expires_at >= current_date
          order by expires_at`,
+        [String(days)],
       );
       return rows;
+    });
+  }
+
+  /**
+   * Full-text search across OCR'd text + AI summaries (SPEC §39.5), using the
+   * GIN tsvector index on document_versions; also matches document titles.
+   */
+  async search(tenantId: string, buildingId: string, query: string) {
+    if (!query?.trim()) return [];
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query(
+        `select d.id, d.title, d.category, d.expires_at, dv.ai_summary,
+                ts_rank(
+                  to_tsvector('simple', coalesce(dv.ocr_text,'') || ' ' || coalesce(dv.ai_summary,'')),
+                  plainto_tsquery('simple', $3)
+                ) as rank
+         from documents d
+         join document_versions dv on dv.id = d.current_version_id
+         where d.building_id = $1 and d.status = 'active'
+           and (
+             to_tsvector('simple', coalesce(dv.ocr_text,'') || ' ' || coalesce(dv.ai_summary,''))
+               @@ plainto_tsquery('simple', $3)
+             or d.title ilike '%' || $3 || '%'
+           )
+         order by rank desc nulls last, d.created_at desc
+         limit 20`,
+        [buildingId, tenantId, query.trim()],
+      );
+      return rows;
+    });
+  }
+
+  /**
+   * Scan for documents inside their reminder window and create a one-off
+   * renewal task per document (SPEC §39.7). Idempotent: skips documents that
+   * already have an open renewal task. Intended for a daily scheduled run.
+   */
+  async scanExpiries(tenantId: string): Promise<{ scanned: number; tasks_created: number }> {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows: docs } = await c.query<{
+        id: string;
+        building_id: string;
+        title: string;
+        category: string;
+        expires_at: string;
+      }>(
+        `select id, building_id, title, category, expires_at from documents
+         where status = 'active' and expires_at is not null
+           and expires_at - (reminder_lead_days || ' days')::interval <= current_date
+           and expires_at >= current_date`,
+      );
+
+      let created = 0;
+      for (const doc of docs) {
+        const existing = await c.query(
+          `select 1 from tasks
+           where tenant_id = $1 and status not in ('done', 'cancelled')
+             and metadata ->> 'document_id' = $2 limit 1`,
+          [tenantId, doc.id],
+        );
+        if (existing.rows.length > 0) continue;
+        await c.query(
+          `insert into tasks
+            (tenant_id, building_id, source, title, description_md, category, priority, status, metadata)
+           values ($1, $2, 'adhoc', $3, $4, 'other', 'med', 'todo', $5::jsonb)`,
+          [
+            tenantId,
+            doc.building_id,
+            `חידוש מסמך: ${doc.title}`,
+            `המסמך "${doc.title}" (${doc.category}) פג בתאריך ${doc.expires_at}. נא לחדש.`,
+            JSON.stringify({ kind: 'document_renewal', document_id: doc.id }),
+          ],
+        );
+        created++;
+      }
+      this.logger.log(`Expiry scan for ${tenantId}: ${docs.length} due, ${created} renewal tasks created`);
+      return { scanned: docs.length, tasks_created: created };
     });
   }
 
