@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef2ff" />
+      <stop offset="100%" stop-color="#fef3f8" />
+    </linearGradient>
+    <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Brand mark -->
+  <g transform="translate(80,80)">
+    <rect width="80" height="80" rx="18" fill="url(#logo)" />
+    <g fill="white">
+      <rect x="18" y="26" width="18" height="40" rx="2" />
+      <rect x="40" y="18" width="18" height="48" rx="2" />
+    </g>
+  </g>
+
+  <!-- Hebrew text. Note: SVG renders Hebrew but right-to-left text needs
+       text-anchor="end" and direction. We use direction="rtl". -->
+  <text x="1120" y="270" font-family="Heebo, system-ui, sans-serif" font-size="92" font-weight="800"
+        fill="#0f172a" text-anchor="end" direction="rtl">ניהול מבנים</text>
+  <text x="1120" y="350" font-family="Heebo, system-ui, sans-serif" font-size="44" font-weight="500"
+        fill="#475569" text-anchor="end" direction="rtl">בלי כאב ראש.</text>
+  <text x="1120" y="410" font-family="Heebo, system-ui, sans-serif" font-size="32"
+        fill="#64748b" text-anchor="end" direction="rtl">פלטפורמת CRM לחברות ניהול בישראל</text>
+
+  <!-- Bottom badges -->
+  <g transform="translate(80,510)">
+    <rect width="220" height="56" rx="28" fill="white" stroke="#cbd5e1" />
+    <text x="110" y="36" font-family="Inter, sans-serif" font-size="20" fill="#475569" text-anchor="middle">Hebrew • RTL • GDPR</text>
+  </g>
+  <g transform="translate(320,510)">
+    <rect width="280" height="56" rx="28" fill="white" stroke="#cbd5e1" />
+    <text x="140" y="36" font-family="Inter, sans-serif" font-size="20" fill="#475569" text-anchor="middle">Tranzila • WhatsApp • Claude AI</text>
+  </g>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Pulse">
+  <g fill="none" stroke="#1c1917" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 90 L8 58 L24 50 L24 90" />
+    <path d="M32 90 L32 28 L52 6 L52 90" />
+    <path d="M58 90 L58 34 L76 44 L76 90" />
+    <g stroke-width="1.5">
+      <line x1="11" y1="64" x2="21" y2="61" />
+      <line x1="11" y1="70" x2="21" y2="67" />
+      <line x1="11" y1="76" x2="21" y2="73" />
+      <line x1="11" y1="82" x2="21" y2="79" />
+      <line x1="35" y1="34" x2="49" y2="30" />
+      <line x1="35" y1="41" x2="49" y2="37" />
+      <line x1="35" y1="48" x2="49" y2="44" />
+      <line x1="35" y1="55" x2="49" y2="51" />
+      <line x1="35" y1="62" x2="49" y2="58" />
+      <line x1="35" y1="69" x2="49" y2="65" />
+      <line x1="35" y1="76" x2="49" y2="72" />
+      <line x1="35" y1="83" x2="49" y2="79" />
+      <line x1="61" y1="50" x2="73" y2="47" />
+      <line x1="61" y1="57" x2="73" y2="54" />
+      <line x1="61" y1="64" x2="73" y2="61" />
+      <line x1="61" y1="71" x2="73" y2="68" />
+      <line x1="61" y1="78" x2="73" y2="75" />
+      <line x1="61" y1="84" x2="73" y2="81" />
+    </g>
+  </g>
+  <path
+    d="M2 90 L78 90 L81 93 L85 68 L89 97 L92 90 L98 90"
+    fill="none"
+    stroke="#a16207"
+    stroke-width="2.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
