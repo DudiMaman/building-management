@@ -164,6 +164,48 @@ export class DocumentsService {
   }
 
   /**
+   * Documents a resident may see in a building (SPEC §39.4 graded visibility).
+   * Resolves the person's roles in the building (owner / bill-payer / occupant)
+   * and returns docs matching their tier, plus any explicit per-person ACL
+   * grant. `mgmt_only` is never returned.
+   */
+  async listForResident(tenantId: string, personId: string, buildingId: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'resident' }, async (c) => {
+      const { rows } = await c.query(
+        `with myroles as (
+           select
+             coalesce(bool_or(aa.role = 'owner'), false) as is_owner,
+             coalesce(bool_or(aa.is_bill_payer), false) as is_bill_payer,
+             coalesce(bool_or(aa.is_occupant), false) as is_occupant
+           from apartment_assignments aa
+           join apartments a on a.id = aa.apartment_id
+           where aa.tenant_id = $1 and aa.person_id = $2
+             and aa.status = 'active' and a.building_id = $3
+         )
+         select d.id, d.title, d.category, d.visibility, d.expires_at,
+                dv.size_bytes, dv.mime, dv.ai_summary
+         from documents d
+         cross join myroles
+         left join document_versions dv on dv.id = d.current_version_id
+         where d.tenant_id = $1 and d.building_id = $3 and d.status = 'active'
+           and (
+             d.visibility = 'building_public'
+             or (d.visibility = 'all_occupants' and myroles.is_occupant)
+             or (d.visibility = 'owners' and myroles.is_owner)
+             or (d.visibility = 'bill_payers' and myroles.is_bill_payer)
+             or exists (
+               select 1 from document_acls acl
+               where acl.document_id = d.id and acl.person_id = $2
+             )
+           )
+         order by d.created_at desc`,
+        [tenantId, personId, buildingId],
+      );
+      return rows;
+    });
+  }
+
+  /**
    * Full-text search across OCR'd text + AI summaries (SPEC §39.5), using the
    * GIN tsvector index on document_versions; also matches document titles.
    */
