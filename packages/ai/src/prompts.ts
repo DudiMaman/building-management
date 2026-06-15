@@ -14,6 +14,9 @@ export interface PromptContext {
   outstanding_balance?: string;
   language?: 'he' | 'en';
   business_hours_open?: boolean;
+  /** Per-tenant tuning (SPEC §14.8). */
+  tone?: string;                   // e.g. 'formal' | 'friendly' | free text
+  custom_rules?: string;           // extra business rules / FAQ guidance
 }
 
 export const CUSTOMER_SERVICE_PROMPT_V1 = (ctx: PromptContext): string => `
@@ -53,6 +56,7 @@ export const CUSTOMER_SERVICE_PROMPT_V1 = (ctx: PromptContext): string => `
 
 # שעות פעילות
 ${ctx.business_hours_open ? 'כעת בשעות הפעילות. הסלמה זמינה.' : 'מחוץ לשעות הפעילות. צוין למשתמש שצוות אנושי יחזור אליו בשעות העבודה הקרובות.'}
+${ctx.tone ? `\n# סגנון דיבור\nאמץ סגנון: ${ctx.tone}.` : ''}${ctx.custom_rules ? `\n# כללים והנחיות נוספים של חברת הניהול\n${ctx.custom_rules}` : ''}
 `.trim();
 
 export const TICKET_CLASSIFIER_PROMPT = `

@@ -153,7 +153,32 @@ export class AiBotService {
     return rows;
   }
 
+  /** Per-tenant bot tuning, stored under tenants.settings.bot (SPEC §14.8). */
+  async getSettings(tenantId: string): Promise<{ tone?: string; custom_rules?: string; enabled?: boolean }> {
+    const { rows } = await this.db.query<{ bot: any }>(
+      `select settings -> 'bot' as bot from tenants where id = $1`,
+      [tenantId],
+    );
+    return rows[0]?.bot ?? {};
+  }
+
+  async updateSettings(
+    tenantId: string,
+    settings: { tone?: string; custom_rules?: string; enabled?: boolean },
+  ) {
+    const { rows } = await this.db.query<{ bot: any }>(
+      `update tenants
+       set settings = jsonb_set(coalesce(settings, '{}'::jsonb), '{bot}', $2::jsonb, true),
+           updated_at = now()
+       where id = $1
+       returning settings -> 'bot' as bot`,
+      [tenantId, JSON.stringify(settings)],
+    );
+    return rows[0]?.bot ?? settings;
+  }
+
   private async loadContext(tenantId: string, conversationId: string): Promise<BotContext> {
+    const settings = await this.getSettings(tenantId);
     const { rows } = await this.db.query<{
       tenant_name: string;
       person_id: string | null;
@@ -186,6 +211,8 @@ export class AiBotService {
         apartment_unit: r?.apartment_unit ?? undefined,
         language: 'he',
         business_hours_open: this.isBusinessHours(),
+        tone: settings.tone,
+        custom_rules: settings.custom_rules,
       },
     };
   }
