@@ -134,6 +134,14 @@ export function findTemplate(
   return TEMPLATES.find((t) => t.key === key && t.channel === channel && t.locale === locale);
 }
 
+/** Which channels have a template for this key/locale (used for fanout fallback). */
+export function templateChannels(
+  key: string,
+  locale: NotificationTemplate['locale'] = 'he',
+): NotificationTemplate['channel'][] {
+  return TEMPLATES.filter((t) => t.key === key && t.locale === locale).map((t) => t.channel);
+}
+
 /** Trivial mustache-style interpolation. No HTML escaping; consumers handle. */
 export function renderTemplate(body: string, vars: Record<string, string | number>): string {
   return body.replace(/\{\{(\w+)\}\}/g, (_, k) => {

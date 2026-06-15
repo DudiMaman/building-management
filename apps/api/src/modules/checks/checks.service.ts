@@ -4,6 +4,7 @@
  */
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import type { ReceiveCheck, BounceCheck } from '@bm/shared';
 import type { Check, CheckBatch, BouncedCheck } from '@bm/db';
 
@@ -11,7 +12,10 @@ import type { Check, CheckBatch, BouncedCheck } from '@bm/db';
 export class ChecksService {
   private readonly logger = new Logger(ChecksService.name);
 
-  constructor(private readonly db: DbService) {}
+  constructor(
+    private readonly db: DbService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async receive(tenantId: string, actorUserId: string, input: ReceiveCheck): Promise<Check> {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
@@ -89,7 +93,7 @@ export class ChecksService {
     tenantId: string,
     input: BounceCheck,
   ): Promise<{ check: Check; bounced: BouncedCheck; fee_charge_id: string | null }> {
-    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
+    const result = await this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (client) => {
       const checkRes = await client.query<Check>(
         `select * from checks where id = $1`,
         [input.check_id],
@@ -145,6 +149,33 @@ export class ChecksService {
 
       return { check, bounced: bouncedRows[0]!, fee_charge_id: feeChargeId };
     });
+
+    // Notify the bill-payer (and owner copy via policy) that the check bounced.
+    // Critical → bypasses DND and the daily rate limit. Outside the tx so a
+    // send failure can't roll back the bounce.
+    if (result.check.apartment_id) {
+      const deadline = new Date();
+      deadline.setDate(deadline.getDate() + 14);
+      try {
+        await this.notifications.notifyApartment(
+          tenantId,
+          result.check.apartment_id,
+          'check_bounced',
+          'check_bounced',
+          {
+            amount: String(result.check.amount),
+            reason: input.bounce_reason_text ?? input.bounce_reason,
+            deadline: deadline.toISOString().slice(0, 10),
+            pay_url: '',
+          },
+          { critical: true, event_key: `check_bounced:${result.check.id}` },
+        );
+      } catch (err) {
+        this.logger.warn(`Bounced-check notify failed for ${result.check.id}: ${(err as Error).message}`);
+      }
+    }
+
+    return result;
   }
 
   async linkReplacement(tenantId: string, bouncedId: string, replacementCheckId: string) {

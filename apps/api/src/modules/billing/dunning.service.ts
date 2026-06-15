@@ -14,12 +14,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
 import { DUNNING_STAGES } from '@bm/shared';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class DunningService {
   private readonly logger = new Logger(DunningService.name);
 
-  constructor(private readonly db: DbService) {}
+  constructor(
+    private readonly db: DbService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   /**
    * Iterate overdue charges per tenant and advance their dunning stage.
@@ -31,10 +35,11 @@ export class DunningService {
         id: string;
         billed_to_person_id: string | null;
         apartment_id: string;
+        amount: string;
         due_date: string;
         dunning_stage: number;
       }>(
-        `select id, billed_to_person_id, apartment_id, due_date, dunning_stage
+        `select id, billed_to_person_id, apartment_id, amount, due_date, dunning_stage
          from charges
          where status in ('pending', 'partial', 'overdue')
            and due_date <= $1`,
@@ -42,6 +47,7 @@ export class DunningService {
       );
 
       let advanced = 0;
+      const toNotify: Array<{ apartment_id: string; charge_id: string; amount: string; due_date: string; stage: number }> = [];
       for (const row of rows) {
         const daysOverdue = Math.floor(
           (now.getTime() - new Date(row.due_date).getTime()) / (1000 * 60 * 60 * 24),
@@ -55,11 +61,36 @@ export class DunningService {
             [row.id, nextStage],
           );
           advanced++;
-          // The actual notification dispatch is done by NotificationsModule
-          // listening to a domain event we'd emit here. For brevity in this
-          // skeleton, the dispatch hook is left to the queue worker.
+          toNotify.push({
+            apartment_id: row.apartment_id,
+            charge_id: row.id,
+            amount: row.amount,
+            due_date: row.due_date,
+            stage: nextStage,
+          });
         }
       }
+
+      // Communication dunning is ours (card-side retries belong to Tranzila —
+      // see docs/decisions.md ADR-001). Fan out an overdue reminder per the
+      // apartment's notification_policy; dedupe per charge+stage so re-runs
+      // don't spam. Done outside the tenant tx so a send failure can't roll
+      // back the stage advance.
+      for (const n of toNotify) {
+        try {
+          await this.notifications.notifyApartment(
+            tenantId,
+            n.apartment_id,
+            'charge_overdue',
+            'charge_overdue',
+            { amount: n.amount, due_date: n.due_date, pay_url: '' },
+            { event_key: `dunning:${n.charge_id}:${n.stage}` },
+          );
+        } catch (err) {
+          this.logger.warn(`Dunning notify failed for charge ${n.charge_id}: ${(err as Error).message}`);
+        }
+      }
+
       this.logger.log(`Dunning for ${tenantId}: ${advanced} charges advanced (of ${rows.length})`);
       return { reviewed: rows.length, advanced };
     });
