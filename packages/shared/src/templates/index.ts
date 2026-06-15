@@ -73,6 +73,22 @@ export const TEMPLATES: NotificationTemplate[] = [
     subject: 'עדכון בפנייה #{{ticket_id}}',
     body: 'הפנייה "{{title}}" עברה לסטטוס: {{status}}',
   },
+  // ---- Ticket satisfaction (prompt on close) ----
+  {
+    key: 'ticket_satisfaction',
+    channel: 'push',
+    locale: 'he',
+    subject: 'איך היה השירות?',
+    body: 'הפנייה "{{title}}" טופלה. נשמח אם תדרגו את השירות באפליקציה.',
+  },
+  {
+    key: 'ticket_satisfaction',
+    channel: 'whatsapp',
+    locale: 'he',
+    body: 'הפנייה "{{title}}" טופלה ✅ נשמח לדירוג קצר על השירות שקיבלתם.',
+    meta_template_name: 'ticket_satisfaction_he',
+    meta_template_lang: 'he',
+  },
   // ---- Bounced check ----
   {
     key: 'check_bounced',

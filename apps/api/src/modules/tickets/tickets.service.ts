@@ -1,12 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DbService } from '../../db/db.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { classifyTicket } from '@bm/ai';
 import type { CreateTicket } from '@bm/shared';
 import type { ServiceTicket } from '@bm/db';
 
+/** Default SLA resolution windows (hours) by priority — SPEC §18.5. */
+const SLA_HOURS: Record<string, number> = { urgent: 4, high: 24, med: 72, low: 168 };
+
 @Injectable()
 export class TicketsService {
-  constructor(private readonly db: DbService) {}
+  private readonly logger = new Logger(TicketsService.name);
+
+  constructor(
+    private readonly db: DbService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(tenantId: string, openedByPersonId: string | null, input: CreateTicket): Promise<ServiceTicket> {
     // Auto-classify if category=other
@@ -18,12 +27,14 @@ export class TicketsService {
       if (priority === 'med') priority = result.priority;
     }
 
+    const slaDueAt = new Date(Date.now() + (SLA_HOURS[priority] ?? 72) * 3600_000).toISOString();
+
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
       const { rows } = await c.query<ServiceTicket>(
         `insert into service_tickets
           (tenant_id, building_id, apartment_id, opened_by_person_id, intake_channel,
-           title, description, category, priority, photos, status, opened_at)
-         values ($1, $2, $3, $4, 'app', $5, $6, $7, $8, $9::jsonb, 'new', now())
+           title, description, category, priority, photos, status, sla_due_at, opened_at)
+         values ($1, $2, $3, $4, 'app', $5, $6, $7, $8, $9::jsonb, 'new', $10, now())
          returning *`,
         [
           tenantId,
@@ -35,6 +46,7 @@ export class TicketsService {
           category,
           priority,
           JSON.stringify(input.photos),
+          slaDueAt,
         ],
       );
       return rows[0]!;
@@ -65,7 +77,7 @@ export class TicketsService {
   }
 
   async updateStatus(tenantId: string, id: string, status: ServiceTicket['status'], note?: string) {
-    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+    const ticket = await this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
       const extras: string[] = [];
       const params: any[] = [id, status];
       if (status === 'resolved') extras.push(`resolved_at = now()`);
@@ -78,6 +90,38 @@ export class TicketsService {
       );
       if (rows.length === 0) throw new NotFoundException();
       return rows[0]!;
+    });
+
+    // Prompt the opener to rate once the ticket closes (SPEC §18.6). Best-effort.
+    if (status === 'closed' && ticket.opened_by_person_id) {
+      try {
+        await this.notifications.notifyPerson(
+          tenantId,
+          ticket.opened_by_person_id,
+          'ticket_satisfaction',
+          { ticket_id: String(ticket.id).slice(0, 8), title: ticket.title },
+          { event_key: `ticket_satisfaction:${ticket.id}` },
+        );
+      } catch (err) {
+        this.logger.warn(`Satisfaction prompt failed for ticket ${ticket.id}: ${(err as Error).message}`);
+      }
+    }
+    return ticket;
+  }
+
+  /**
+   * Find tickets whose SLA window has elapsed without resolution (SPEC §18.5).
+   * Intended for a scheduled scan that escalates breaches.
+   */
+  async findSlaBreaches(tenantId: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const { rows } = await c.query<ServiceTicket>(
+        `select * from service_tickets
+         where sla_due_at is not null and sla_due_at < now()
+           and status not in ('resolved', 'closed', 'cancelled')
+         order by sla_due_at asc`,
+      );
+      return rows;
     });
   }
 
