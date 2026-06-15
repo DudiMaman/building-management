@@ -142,6 +142,23 @@ export class PollsService {
     return vote;
   }
 
+  async list(tenantId: string, buildingId?: string) {
+    return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
+      const params: unknown[] = [];
+      let where = '';
+      if (buildingId) {
+        params.push(buildingId);
+        where = `where building_id = $${params.length}`;
+      }
+      const { rows } = await c.query(
+        `select p.*, (select count(*) from votes v where v.poll_id = p.id) as vote_count
+         from polls p ${where} order by p.created_at desc`,
+        params,
+      );
+      return rows;
+    });
+  }
+
   async results(tenantId: string, pollId: string) {
     return this.db.withTenantContext({ tenant_id: tenantId, role: 'mgmt_admin' }, async (c) => {
       const { rows } = await c.query(

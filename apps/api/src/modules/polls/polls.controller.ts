@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -24,6 +25,11 @@ interface VoteBody {
 @UseGuards(SupabaseJwtGuard)
 export class PollsController {
   constructor(private readonly polls: PollsService) {}
+
+  @Get()
+  list(@Req() req: AuthenticatedRequest, @Query('building_id') buildingId?: string) {
+    return this.polls.list(req.claims.tenant_id, buildingId);
+  }
 
   @Post()
   create(@Req() req: AuthenticatedRequest, @Body(new ZodPipe(CreatePollSchema)) body: any) {

@@ -187,6 +187,40 @@ export class WhatsAppService {
     return a.length === b.length && timingSafeEqual(a, b);
   }
 
+  /** Inbox: WhatsApp conversations with their latest message (SPEC §13.4). */
+  async listConversations(tenantId: string, status?: string) {
+    const params: unknown[] = [tenantId];
+    let statusClause = '';
+    if (status) {
+      params.push(status);
+      statusClause = `and c.status = $${params.length}`;
+    }
+    const { rows } = await this.db.query(
+      `select c.id, c.status, c.whatsapp_phone_e164, c.last_message_at,
+              p.full_name,
+              (select body from messages m where m.conversation_id = c.id
+               order by m.created_at desc limit 1) as last_message
+       from conversations c
+       left join people p on p.id = c.person_id
+       where c.tenant_id = $1 and c.channel = 'whatsapp' ${statusClause}
+       order by c.last_message_at desc nulls last
+       limit 100`,
+      params,
+    );
+    return rows;
+  }
+
+  /** Full message thread for a conversation. */
+  async getMessages(tenantId: string, conversationId: string) {
+    const { rows } = await this.db.query(
+      `select id, direction, sender_type, body, status, created_at
+       from messages where tenant_id = $1 and conversation_id = $2
+       order by created_at asc`,
+      [tenantId, conversationId],
+    );
+    return rows;
+  }
+
   verifyToken(query: { 'hub.mode'?: string; 'hub.challenge'?: string; 'hub.verify_token'?: string }) {
     if (query['hub.mode'] === 'subscribe' && query['hub.verify_token'] === process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN) {
       return query['hub.challenge'];
